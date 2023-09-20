@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:math';
-
-import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/game.dart' as g;
+import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
+import 'package:flame_game/splash_page.dart';
 import 'package:flutter/material.dart';
+
+import 'home_page.dart';
 
 Future<void> main() async {
   ///連結硬體
@@ -16,7 +18,7 @@ Future<void> main() async {
   ///設為垂直
   Flame.device.setPortrait();
   runApp(
-    GameWidget(
+    g.GameWidget(
       game: MyGame(),
       overlayBuilderMap: {
         'PauseMenu': (context, game) {
@@ -30,32 +32,20 @@ Future<void> main() async {
   );
 }
 
-class MyGame extends FlameGame with HasCollisionDetection{
-  
-  
+class MyGame extends g.FlameGame {
+  late final g.RouterComponent router;
+
   @override
-  FutureOr<void> onLoad() {
-    // TODO: implement onLoad
-    add(ScreenHitbox());
-    final componentSize = Vector2(150, 100);
+  Future<void> onLoad() async {
     add(
-      AnimatedComponent(Vector2.all(200), Vector2.all(100), componentSize)
-        ..flipVertically(),
+      router = g.RouterComponent(
+        routes: {
+          'splash': g.Route(SplashScreenPage.new),
+          'home': g.Route(HomePage.new),
+        },
+        initialRoute: 'splash',
+      ),
     );
-    // return super.onLoad();
-  }
-
-  @override
-  void render(Canvas canvas) {
-    // TODO: implement render
-    super.render(canvas);
-  }
-
-  @override
-  void update(double dt) {
-    // TODO: implement update
-    super.update(dt);
-
   }
 }
 
