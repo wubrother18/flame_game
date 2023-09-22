@@ -4,6 +4,7 @@ import 'package:flame/experimental.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/rendering.dart';
 
+import 'game/main_screen.dart';
 import 'main.dart';
 
 class SplashScreenPage extends Component with TapCallbacks, HasGameReference<MyGame>{

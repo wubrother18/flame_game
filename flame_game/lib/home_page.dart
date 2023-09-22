@@ -3,6 +3,7 @@ import 'package:flame/experimental.dart';
 import 'package:flutter/rendering.dart';
 
 import 'button.dart';
+import 'game/main_screen.dart';
 import 'main.dart';
 
 class HomePage extends Component with HasGameReference<MyGame> {
