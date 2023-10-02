@@ -26,8 +26,8 @@ class _LoginPageState extends State<LoginPage> {
             begin: Alignment.topLeft,
             end: Alignment.bottomCenter,
             colors: [
-              Color.fromARGB(255, 156, 89, 254),
-              Color.fromARGB(255, 111, 83, 253)
+              Color.fromARGB(255,51, 10, 112),
+              Color.fromARGB(255, 47, 16, 207),
             ]),
       ),
       child: ClipRect(
@@ -51,17 +51,18 @@ class _LoginPageState extends State<LoginPage> {
             right: w / 8,
             left: w / 8,
             child: Container(
+              width: 10,
               decoration: const BoxDecoration(boxShadow: [
                 BoxShadow(
-                    color: Colors.indigo, offset: Offset(0, 20), blurRadius: 30)
+                    color: Color.fromARGB(255, 255, 178, 19), offset: Offset(0, 5), blurRadius: 80)
               ]),
               child: const Align(
                 alignment: Alignment.center,
                 child: Text(
-                " 30 天煉成 ",
+                " 30 天煉成",
                 style: TextStyle(
-                    color: Colors.yellow,
-                    fontSize: 64,
+                    color: Color.fromARGB(255, 255, 178, 19),
+                    fontSize: 48,
                     fontWeight: FontWeight.w700,
                     fontFamily: 'Roboto'),
               ),

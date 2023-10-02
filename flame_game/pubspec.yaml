@@ -39,6 +39,7 @@ dependencies:
   particles_flutter: ^0.1.4
   json_annotation: ^4.8.1
   shared_preferences: ^2.2.0
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
