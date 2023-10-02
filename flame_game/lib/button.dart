@@ -18,10 +18,10 @@ class RoundedButton extends PositionComponent with TapCallbacks{
   ).toTextPainter(text) {
     size = Vector2(150, 40);
     _textOffset = Offset(
-      (size.x * 0.5 - _textDrawable.width) / 2,
+      (size.x - _textDrawable.width) / 2,
       (size.y - _textDrawable.height) / 2,
     );
-    _rrect = RRect.fromLTRBR(0, 0, size.x * 0.5, size.y, Radius.circular(size.y / 2));
+    _rrect = RRect.fromLTRBR(0, 0, size.x , size.y, Radius.circular(size.y / 2));
     _bgPaint = Paint()..color = color;
     _borderPaint = Paint()
       ..style = PaintingStyle.stroke

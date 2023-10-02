@@ -37,9 +37,9 @@ class MenuPage extends Component with HasGameReference<LandingPage> {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    _startNewGameButton.position = Vector2(size.x / 5, size.y * 7 / 8);
-    _loadGameButton.position = Vector2(size.x * 2 / 5, size.y * 7 / 8);
-    _achievementButton.position = Vector2(size.x * 3 / 5, size.y * 7 / 8);
+    _startNewGameButton.position = Vector2(size.x / 2, size.y * 3 / 8);
+    _loadGameButton.position = Vector2(size.x / 2, size.y * 4 / 8);
+    _achievementButton.position = Vector2(size.x  / 2, size.y * 5 / 8);
   }
 
   void gotoGame() {

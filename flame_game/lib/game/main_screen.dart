@@ -6,6 +6,8 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_game/game/touch_target.dart';
+import 'package:flame_game/model/user_data.dart';
+import 'package:flame_game/static.dart';
 
 import '../button.dart';
 import '../home_page.dart';
@@ -22,29 +24,34 @@ class MyGame extends FlameGame {
   MyGame(){
     addAll([
       TapTarget(),
-      _button1 = RoundedButton(
-          text: "強化",
-          action: () {},
-          color: Color(0xffffffff),
-          borderColor: Color(0xffffffff)),
-      _button2 = RoundedButton(
-          text: "故事",
-          action: () {},
-          color: Color(0xffffffff),
-          borderColor: Color(0xffffffff)),
-      _button3 = RoundedButton(
-          text: "主頁",
-          action: () {},
-          color: Color(0xffffffff),
-          borderColor: Color(0xffffffff)),
-      _button4 = RoundedButton(
-          text: "資源",
-          action: () {},
-          color: Color(0xffffffff),
-          borderColor: Color(0xffffffff)),
+    //   _button1 = RoundedButton(
+    //       text: "強化",
+    //       action: () {},
+    //       color: Color(0xffffffff),
+    //       borderColor: Color(0xffffffff)),
+    //   _button2 = RoundedButton(
+    //       text: "故事",
+    //       action: () {},
+    //       color: Color(0xffffffff),
+    //       borderColor: Color(0xffffffff)),
+    //   _button3 = RoundedButton(
+    //       text: "主頁",
+    //       action: () {},
+    //       color: Color(0xffffffff),
+    //       borderColor: Color(0xffffffff)),
+    //   _button4 = RoundedButton(
+    //       text: "資源",
+    //       action: () {},
+    //       color: Color(0xffffffff),
+    //       borderColor: Color(0xffffffff)),
       _button5 = RoundedButton(
-          text: "轉蛋",
-          action: () {},
+          text: "改名字為「轉蛋」",
+          action: () {
+            UserData? user = StaticFunction.getInstance().getAccount();
+            user?.name = "轉蛋";
+            StaticFunction.getInstance().editAccount(user!);
+
+          },
           color: Color(0xffffffff),
           borderColor: Color(0xffffffff)),
     ]);
@@ -66,11 +73,11 @@ class MyGame extends FlameGame {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
-    _button1.position = Vector2(size.x / 5, size.y *7/ 8);
-    _button2.position = Vector2(size.x *2/ 5, size.y *7/ 8);
-    _button3.position = Vector2(size.x *3/ 5, size.y *7/ 8);
-    _button4.position = Vector2(size.x *4/ 5, size.y *7/ 8);
-    _button5.position = Vector2(size.x - size.x /5, size.y *7/ 8);
+    // _button1.position = Vector2(size.x / 5, size.y *7/ 8);
+    // _button2.position = Vector2(size.x *2/ 5, size.y *7/ 8);
+    // _button3.position = Vector2(size.x *3/ 5, size.y *7/ 8);
+    // _button4.position = Vector2(size.x *4/ 5, size.y *7/ 8);
+    _button5.position = Vector2(size.x /2, size.y *5/ 8);
   }
 }
 

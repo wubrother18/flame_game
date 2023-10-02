@@ -1,7 +1,9 @@
+import 'package:flame_game/static.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:particles_flutter/particles_flutter.dart';
 
+import '../dialog.dart';
 import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -93,7 +95,18 @@ class _LoginPageState extends State<LoginPage> {
     ));
   }
 
-  void checkToLogin() {
+  Future<void> checkToLogin() async {
+    ///check has data
+    if (StaticFunction.getInstance().getAccount() == null) {
+      await showDialog(context: context, builder: (context){
+        return DialogHelper.showWarning(context, "遊客帳號", "將以遊客帳號登入遊戲，若遊戲被刪除，資料也會無法復原。請盡快綁定您的帳號", "知道了", (){
+          Navigator.pop(context);
+        });
+      });
+      await StaticFunction.getInstance().createAccount();
+    }else{
+
+    }
     Navigator.push(
             context,
             MaterialPageRoute(

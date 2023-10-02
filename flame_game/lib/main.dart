@@ -1,14 +1,10 @@
 import 'dart:async';
-import 'dart:math';
-import 'package:flame/components.dart';
-import 'package:flame/game.dart' as g;
-import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import 'package:flame/palette.dart';
 import 'package:flame_game/page/login_page.dart';
-import 'package:flame_game/splash_page.dart';
+import 'package:flame_game/static.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'home_page.dart';
 
@@ -18,6 +14,10 @@ Future<void> main() async {
   ///設為全螢幕
   Flame.device.fullScreen();
   var defaultHome = const LoginPage();
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  StaticFunction.prefs = prefs;
+
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
       .then((_) => runApp(MaterialApp(
