@@ -45,11 +45,8 @@ class MyGame extends FlameGame {
     //       color: Color(0xffffffff),
     //       borderColor: Color(0xffffffff)),
       _button5 = RoundedButton(
-          text: "改名字為「轉蛋」",
+          text: "煉成",
           action: () {
-            UserData? user = StaticFunction.getInstance().getAccount();
-            user?.name = "轉蛋";
-            StaticFunction.getInstance().editAccount(user!);
 
           },
           color: Color(0xffffffff),
@@ -77,7 +74,7 @@ class MyGame extends FlameGame {
     // _button2.position = Vector2(size.x *2/ 5, size.y *7/ 8);
     // _button3.position = Vector2(size.x *3/ 5, size.y *7/ 8);
     // _button4.position = Vector2(size.x *4/ 5, size.y *7/ 8);
-    _button5.position = Vector2(size.x /2, size.y *5/ 8);
+    // _button5.position = Vector2(size.x /2, size.y *5/ 8);
   }
 }
 
