@@ -1,3 +1,4 @@
+import 'package:flame_game/page/game_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -66,10 +67,38 @@ class _PreparePageState extends State<PreparePage> {
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8)),
                               color: Color.fromARGB(30, 255, 255, 255)),
-                          child: const Icon(
-                            Icons.person,
-                            size: 100,
-                            color: Colors.black,
+                          child: Stack(
+                            children: [
+                              const Positioned.fill(
+                                child: Icon(
+                                  Icons.person,
+                                  size: 100,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              Positioned(
+                                  top: 150,
+                                  right: 20,
+                                  left: 20,
+                                  child: GestureDetector(
+                                    onTap: () {},
+                                    child: Container(
+                                      width: 100,
+                                      height: 30,
+                                      decoration: const BoxDecoration(
+                                          color: Color.fromARGB(
+                                              255, 100, 100, 100),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(99))),
+                                      child: const Center(
+                                        child: Text(
+                                          "變更",
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                            ],
                           ),
                         ),
                         const SizedBox(
@@ -164,20 +193,31 @@ class _PreparePageState extends State<PreparePage> {
                     const SizedBox(
                       height: 16,
                     ),
-                    TextButton(onPressed: (){}, child: Container(
-                      width: double.infinity,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(30, 255, 255, 255),
-                          border:Border.all(color: const Color.fromARGB(255, 255, 178, 100)),
-                          borderRadius: const BorderRadius.all(Radius.circular(99))),
-                      child: const Center(
-                        child: Text(
-                          "煉成",
-                          style: TextStyle(fontSize: 20,fontWeight: FontWeight.w600,color: Colors.red),
+                    TextButton(
+                      onPressed: () {
+                        gotoGame();
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        height: 80,
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(30, 255, 255, 255),
+                            border: Border.all(
+                                color:
+                                    const Color.fromARGB(255, 255, 178, 100)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(99))),
+                        child: const Center(
+                          child: Text(
+                            "煉成",
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red),
+                          ),
                         ),
                       ),
-                    ),),
+                    ),
                   ],
                 ),
               ),
@@ -186,5 +226,14 @@ class _PreparePageState extends State<PreparePage> {
         ),
       ),
     );
+  }
+
+  gotoGame() {
+    Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) => const GamePage(cardList: []),
+                fullscreenDialog: true))
+        .then((value) {});
   }
 }

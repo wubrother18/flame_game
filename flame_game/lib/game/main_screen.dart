@@ -45,7 +45,7 @@ class MyGame extends FlameGame {
     //       color: Color(0xffffffff),
     //       borderColor: Color(0xffffffff)),
       _button5 = RoundedButton(
-          text: "煉成",
+          text: "固拉多本多",
           action: () {
 
           },
@@ -74,7 +74,7 @@ class MyGame extends FlameGame {
     // _button2.position = Vector2(size.x *2/ 5, size.y *7/ 8);
     // _button3.position = Vector2(size.x *3/ 5, size.y *7/ 8);
     // _button4.position = Vector2(size.x *4/ 5, size.y *7/ 8);
-    // _button5.position = Vector2(size.x /2, size.y *5/ 8);
+    _button5.position = Vector2(size.x /2, size.y *4/ 8);
   }
 }
 
