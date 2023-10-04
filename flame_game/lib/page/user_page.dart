@@ -54,7 +54,7 @@ class _UserPageState extends State<UserPage> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: Icon(
+                child: const Icon(
                   Icons.arrow_back,
                   size: 24,
                   color: Colors.black,
