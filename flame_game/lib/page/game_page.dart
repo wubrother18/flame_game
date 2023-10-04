@@ -31,7 +31,37 @@ class _GamePageState extends State<GamePage> {
       ExampleCard().getCard(),
       ExampleCard().getCard(),
       ExampleCard().getCard(),
-    ]);
+    ],(end){
+      String title = "";
+      String msg = "";
+      if(end.contains("fail")){
+        title = "煉成失敗!!";
+        msg = "下次再加油吧!!";
+      }else{
+        title = "鐵人煉成!!";
+        msg = "恭喜!!恭喜!!";
+      }
+      showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          // false = user must tap button, true = tap outside dialog
+          builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(msg),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(dialogContext)
+                    .pop();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      });
+    });
   }
 
   @override
@@ -95,7 +125,7 @@ class _GamePageState extends State<GamePage> {
                 children: [
                   Container(
                     width: 300,
-                    height: 60,
+                    height: 70,
                     padding: const EdgeInsets.only(left: 24, right: 24),
                     decoration: const BoxDecoration(
                         color: Colors.white,
@@ -277,7 +307,7 @@ class _GamePageState extends State<GamePage> {
                   ),
                   Container(
                     width: 60,
-                    height: 60,
+                    height: 70,
                     decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.all(Radius.circular(99))),
@@ -333,24 +363,25 @@ class _GamePageState extends State<GamePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  for(int i=0;i<gameManager!.eventHelper!.eventList.length;i++)
+                  for(int i=0;i<gameManager!.eventList!.length;i++)
                   TextButton(
                     onPressed: () {
-                      gameManager!.role?.getEvent(gameManager!.eventHelper!.eventList[i]);
+                      gameManager!.role?.getEvent(gameManager!.eventList![i]);
                       showDialog<void>(
                           context: context,
                           barrierDismissible: false,
                           // false = user must tap button, true = tap outside dialog
                           builder: (BuildContext dialogContext) {
                             return AlertDialog(
-                              title: Text(gameManager!.eventHelper!.eventList[i]!.title!),
-                              content: Text(gameManager!.eventHelper!.eventList[i]!.describe!),
+                              title: Text(gameManager!.eventList![i].title!),
+                              content: Text(gameManager!.eventList![i].describe!),
                               actions: <Widget>[
                                 TextButton(
                                   child: const Text('OK'),
                                   onPressed: () {
                                     Navigator.of(dialogContext)
-                                        .pop(); // Dismiss alert dialog
+                                        .pop();
+                                    gameManager?.getNext();
                                     setState(() {
 
                                     });
@@ -372,7 +403,7 @@ class _GamePageState extends State<GamePage> {
                               const BorderRadius.all(Radius.circular(99))),
                       child: Center(
                         child: Text(
-                          gameManager!.eventHelper!.eventList[i]!.title!,
+                          gameManager!.eventList![i].title!,
                           style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
