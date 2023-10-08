@@ -4,6 +4,7 @@ import 'package:flame_game/manager/event_helper.dart';
 import 'package:flame_game/manager/story_manager.dart';
 import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/model/event_model.dart';
+import 'package:flame_game/static.dart';
 
 import '../model/role_model.dart';
 
@@ -56,6 +57,7 @@ class GameManager {
   start() async {}
 
   end(String end) {
+    StaticFunction.getInstance().achieveManager.del("hard_work");
     callBack?.call(end);
   }
 }

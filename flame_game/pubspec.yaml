@@ -40,6 +40,9 @@ dependencies:
   json_annotation: ^4.8.1
   shared_preferences: ^2.2.0
   qr_flutter: ^4.1.0
+  flutter_local_notifications: ^16.1.0
+#  awesome_notifications: ^0.8.2
+
 
 dev_dependencies:
   flutter_test:
@@ -67,8 +70,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/
+    - assets/data/
+    - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

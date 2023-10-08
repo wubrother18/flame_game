@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flame/flame.dart';
+import 'package:flame_game/manager/notification.dart';
 import 'package:flame_game/page/login_page.dart';
 import 'package:flame_game/static.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,9 @@ Future<void> main() async {
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   StaticFunction.prefs = prefs;
+  StaticFunction.getInstance().checkAchieveListBuild();
+
+  LocalNotificationService.initialize();
 
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown])
