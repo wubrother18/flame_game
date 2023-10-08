@@ -1,0 +1,29 @@
+[
+  {
+    "ID": "login_times",
+    "NAME": "第一次登入",
+    "DESCRIPTION": "歡迎你第一次來到30天煉成~",
+    "ICON": "",
+    "HIDDEN": true,
+    "AMOUNT": 1,
+    "APP_VERSION": "0.0.1"
+  },
+  {
+    "ID": "hard_work",
+    "NAME": "社畜",
+    "DESCRIPTION": "狗都沒你累/所有上班日都選擇「認真上班」",
+    "ICON": "",
+    "HIDDEN": true,
+    "AMOUNT": 22,
+    "APP_VERSION": "0.0.1"
+  },
+  {
+    "ID": "",
+    "NAME": "",
+    "DESCRIPTION": "",
+    "ICON": "",
+    "HIDDEN": true,
+    "AMOUNT": 0,
+    "APP_VERSION": ""
+  }
+]
