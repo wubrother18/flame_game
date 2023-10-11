@@ -1,4 +1,5 @@
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_game/manager/game_manager.dart';
 import 'package:flame_game/model/example_card.dart';
 import 'package:flutter/cupertino.dart';
@@ -366,6 +367,7 @@ class _GamePageState extends State<GamePage> {
                   for(int i=0;i<gameManager!.eventList!.length;i++)
                   TextButton(
                     onPressed: () {
+                      FlameAudio.play('poka.mp3');
                       gameManager!.role?.getEvent(gameManager!.eventList![i]);
                       showDialog<void>(
                           context: context,
@@ -393,7 +395,7 @@ class _GamePageState extends State<GamePage> {
                         );
                       },
                     child: Container(
-                      width: 150,
+                      width: 300 / gameManager!.eventList!.length,
                       height: 80,
                       decoration: BoxDecoration(
                           color: Color.fromARGB(30, 255, 255, 255),
