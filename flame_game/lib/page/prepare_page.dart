@@ -1,6 +1,16 @@
 import 'package:flame_game/page/game_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:flame_game/model/card_model.dart';
+import 'package:flame_game/manager/achievement_manager.dart';
+import 'package:flame_game/widget/common_app_bar.dart';
+import 'package:flame_game/widget/achievement_dialog.dart';
+import 'package:flame_game/model/enums.dart';
+import 'package:flame_game/manager/role_manager.dart';
+
+import '../manager/card_manager.dart';
+import 'achievement_page.dart';
 
 class PreparePage extends StatefulWidget {
   const PreparePage({super.key});
@@ -9,231 +19,319 @@ class PreparePage extends StatefulWidget {
   State<PreparePage> createState() => _PreparePageState();
 }
 
-class _PreparePageState extends State<PreparePage> {
+class _PreparePageState extends State<PreparePage> with SingleTickerProviderStateMixin {
+  List<CardModel> selectedCards = [];
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  
+  List<CardModel> availableCards = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    availableCards = CardManager.instance.getCollectedCards();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    var h = MediaQuery.of(context).size.height;
     return Scaffold(
+      appBar: CommonAppBar(
+        title: '選擇角色',
+        achievementManager: AchievementManager.instance,
+        onAchievementPressed: () {
+          _showAchievements();
+        },
+      ),
       body: Container(
-        height: h,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color.fromARGB(255, 51, 10, 112),
-                Color.fromARGB(255, 47, 16, 207),
-              ]),
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1a237e),
+              Color(0xFF0d47a1),
+            ],
+          ),
         ),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(99))),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    size: 24,
-                    color: Colors.black,
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // 標題區域
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  "選擇你的初始卡片",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 2),
+                        blurRadius: 4,
+                        color: Colors.black26,
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-            Center(
-              child: SizedBox(
-                width: 375,
-                child: Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          width: 24,
-                        ),
-                        Container(
-                          height: 200,
-                          width: 150,
-                          decoration: const BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              color: Color.fromARGB(30, 255, 255, 255)),
-                          child: Stack(
-                            children: [
-                              const Positioned.fill(
-                                child: Icon(
-                                  Icons.person,
-                                  size: 100,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Positioned(
-                                  top: 150,
-                                  right: 20,
-                                  left: 20,
-                                  child: GestureDetector(
-                                    onTap: () {},
-                                    child: Container(
-                                      width: 100,
-                                      height: 30,
-                                      decoration: const BoxDecoration(
-                                          color: Color.fromARGB(
-                                              255, 100, 100, 100),
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(99))),
-                                      child: const Center(
-                                        child: Text(
-                                          "變更",
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                      ),
-                                    ),
-                                  )),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 32,
-                        ),
-                        Expanded(
-                            child: Container(
-                          width: double.infinity,
-                          height: 200,
-                          decoration: const BoxDecoration(
-                              color: Color.fromARGB(255, 255, 255, 255),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12))),
-                          child: const Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.center,
-                                child: Text("名稱"),
-                              ),
-                              SizedBox(
-                                height: 4,
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  "固拉多",
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                              Divider(
-                                thickness: 3,
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: Text("角色資訊"),
-                              ),
-                              SizedBox(
-                                height: 4,
-                              ),
-                              Align(
-                                alignment: Alignment.center,
-                                child: Text("體力:20\n靈感:100\n專業:150"),
-                              ),
-                              Divider(
-                                thickness: 3,
-                              ),
-                            ],
-                          ),
-                        ))
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Container(
-                      width: double.infinity,
-                      height: 60,
-                      decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 255, 178, 100),
-                          borderRadius: BorderRadius.all(Radius.circular(99))),
-                      child: const Center(
-                        child: Text(
-                          "夥伴卡",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    Container(
-                        width: double.infinity,
-                        height: 350,
-                        decoration: const BoxDecoration(
-                            color: Color.fromARGB(200, 255, 255, 255),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(30))),
-                        child: GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3, childAspectRatio: 1.0),
-                            itemCount: 5,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                margin: EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(12))),
-                              );
-                            })),
-                    const SizedBox(
-                      height: 16,
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        gotoGame();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 80,
-                        decoration: BoxDecoration(
-                            color: Color.fromARGB(30, 255, 255, 255),
-                            border: Border.all(
-                                color:
-                                    const Color.fromARGB(255, 255, 178, 100)),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(99))),
-                        child: const Center(
-                          child: Text(
-                            "煉成",
-                            style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 8),
+              // 副標題
+              Text(
+                "選擇3張卡片開始你的30天挑戰",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white.withOpacity(0.8),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              // 已選擇卡片計數
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "已選擇: ${selectedCards.length}/3",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // 卡片網格
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: availableCards.length,
+                  itemBuilder: (context, index) {
+                    final card = availableCards[index];
+                    final isSelected = selectedCards.contains(card);
+                    return GestureDetector(
+                      onTapDown: (_) => _controller.forward(),
+                      onTapUp: (_) => _controller.reverse(),
+                      onTapCancel: () => _controller.reverse(),
+                      onTap: () {
+                        FlameAudio.play('poka.mp3');
+                        setState(() {
+                          if (isSelected) {
+                            selectedCards.remove(card);
+                          } else if (selectedCards.length < 3) {
+                            selectedCards.add(card);
+                          }
+                        });
+                      },
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: isSelected ? Colors.blue : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // 卡片圖標
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  _getCardIcon(card.name),
+                                  size: 30,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              // 卡片名稱
+                              Text(
+                                card.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              // 卡片屬性
+                              _buildStatRow("HP", card.hpAdd, Colors.red),
+                              _buildStatRow("MP", card.mpAdd, Colors.blue),
+                              _buildStatRow("Point", card.pointAdd, Colors.green),
+                              const SizedBox(height: 8),
+                              // 選擇狀態指示器
+                              if (isSelected)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle,
+                                        color: Colors.blue,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        "已選擇",
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              // 開始遊戲按鈕
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: selectedCards.length == 3 ? 1.0 : 0.5,
+                  child: ElevatedButton(
+                    onPressed: selectedCards.length == 3
+                        ? () {
+                            FlameAudio.play('poka.mp3');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => GamePage(
+                                  cardList: selectedCards,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      "開始挑戰",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  gotoGame() {
+  Widget _buildStatRow(String label, int value, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            "+$value",
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getCardIcon(String cardName) {
+    switch (cardName) {
+      case "程式設計師":
+        return Icons.code;
+      case "設計師":
+        return Icons.palette;
+      case "專案經理":
+        return Icons.people;
+      case "行銷專員":
+        return Icons.trending_up;
+      default:
+        return Icons.card_giftcard;
+    }
+  }
+
+  void _showAchievements() {
     Navigator.push(
-            context,
-            CupertinoPageRoute(
-                builder: (context) => const GamePage(cardList: []),
-                fullscreenDialog: true))
-        .then((value) {});
+      context,
+      MaterialPageRoute(builder: (context) => const AchievementPage()),
+    );
   }
 }

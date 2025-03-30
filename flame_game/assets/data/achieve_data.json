@@ -1,29 +1,90 @@
-[
-  {
-    "ID": "login_times",
-    "NAME": "第一次登入",
-    "DESCRIPTION": "歡迎你第一次來到30天煉成~",
-    "ICON": "",
-    "HIDDEN": true,
-    "AMOUNT": 1,
-    "APP_VERSION": "0.0.1"
+{
+  "collection": {
+    "1": {
+      "name": "卡片收藏家",
+      "description": "收集1張不同的卡片",
+      "expReward": 100,
+      "itemRewards": {
+        "gem": 10
+      }
+    },
+    "5": {
+      "name": "卡片收藏家",
+      "description": "收集5張不同的卡片",
+      "expReward": 500,
+      "itemRewards": {
+        "gem": 50
+      }
+    },
+    "10": {
+      "name": "卡片收藏家",
+      "description": "收集10張不同的卡片",
+      "expReward": 1000,
+      "itemRewards": {
+        "gem": 100
+      }
+    }
   },
-  {
-    "ID": "hard_work",
-    "NAME": "社畜",
-    "DESCRIPTION": "狗都沒你累/所有上班日都選擇「認真上班」",
-    "ICON": "",
-    "HIDDEN": true,
-    "AMOUNT": 22,
-    "APP_VERSION": "0.0.1"
+  "level": {
+    "10": {
+      "name": "成長達人",
+      "description": "將任意卡片提升到10級",
+      "expReward": 1000,
+      "itemRewards": {
+        "gem": 100
+      }
+    },
+    "30": {
+      "name": "成長達人",
+      "description": "將任意卡片提升到30級",
+      "expReward": 3000,
+      "itemRewards": {
+        "gem": 300
+      }
+    },
+    "50": {
+      "name": "成長達人",
+      "description": "將任意卡片提升到50級",
+      "expReward": 5000,
+      "itemRewards": {
+        "gem": 500
+      }
+    }
   },
-  {
-    "ID": "",
-    "NAME": "",
-    "DESCRIPTION": "",
-    "ICON": "",
-    "HIDDEN": true,
-    "AMOUNT": 0,
-    "APP_VERSION": ""
+  "event": {
+    "1": {
+      "name": "事件專家",
+      "description": "完成1個事件",
+      "expReward": 200,
+      "itemRewards": {
+        "gem": 20
+      }
+    },
+    "3": {
+      "name": "事件專家",
+      "description": "完成3個事件",
+      "expReward": 600,
+      "itemRewards": {
+        "gem": 60
+      }
+    },
+    "5": {
+      "name": "事件專家",
+      "description": "完成5個事件",
+      "expReward": 1000,
+      "itemRewards": {
+        "gem": 100
+      }
+    }
+  },
+  "special": {
+    "1": {
+      "name": "特殊成就",
+      "description": "完成特殊成就",
+      "expReward": 1000,
+      "itemRewards": {
+        "gem": 100
+      }
+    }
   }
-]
+}

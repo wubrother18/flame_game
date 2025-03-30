@@ -23,7 +23,7 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    UserData? userData = StaticFunction.getInstance().getAccount();
+    UserData? userData = StaticFunction.instance.getAccount();
     name = userData?.name;
     level = userData?.gameLevel ?? 1;
     title = userData?.title ?? "";
@@ -149,9 +149,9 @@ class _UserPageState extends State<UserPage> {
                                                 MaterialButton(
                                                     color: Colors.blueAccent,
                                                     onPressed: () {
-                                                      UserData? user = StaticFunction.getInstance().getAccount();
+                                                      UserData? user = StaticFunction.instance.getAccount();
                                                       user?.name = textEditingController.text;
-                                                      StaticFunction.getInstance().editAccount(user!);
+                                                      StaticFunction.instance.editAccount(user!);
                                                       name = textEditingController.text;
                                                       Navigator.pop(context);
                                                       setState(() {

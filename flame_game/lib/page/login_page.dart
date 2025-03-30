@@ -98,13 +98,13 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> checkToLogin() async {
     ///check has data
-    if (StaticFunction.getInstance().getAccount() == null) {
+    if (StaticFunction.instance.getAccount() == null) {
       await showDialog(context: context, builder: (context){
         return DialogHelper.showWarning(context, "遊客帳號", "將以遊客帳號登入遊戲，若遊戲被刪除，資料也會無法復原。請盡快綁定您的帳號", "知道了", (){
           Navigator.pop(context);
         });
       });
-      await StaticFunction.getInstance().createAccount();
+      await StaticFunction.instance.createAccount();
     }else{
 
     }

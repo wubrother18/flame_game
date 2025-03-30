@@ -4,23 +4,40 @@ part 'event_model.g.dart';
 
 @JsonSerializable()
 class GameEvent {
-  String? title;
+  @JsonKey(name: 'title')
+  final String title;
+  
+  @JsonKey(name: 'description')
+  final String description;
+  
+  @JsonKey(name: 'mpEffect')
+  int mpEffect;
+  
+  @JsonKey(name: 'hpEffect')
+  int hpEffect;
+  
+  @JsonKey(name: 'pointEffect')
+  int pointEffect;
+  
+  @JsonKey(name: 'createEffect')
+  int createEffect;
+  
+  @JsonKey(name: 'popularEffect')
+  int popularEffect;
+  
+  @JsonKey(name: 'randomAble')
+  final bool randomAble;
 
-  ///靈感修改量
-  int? mpEffect;
-
-  ///體力修改量
-  int? hpEffect;
-
-  ///專業度
-  int? pointEffect;
-  bool? randomAble;
-  bool? hasAnimate;
-  String? describe;
-
-
-  GameEvent(this.title, this.mpEffect, this.hpEffect, this.pointEffect,
-      this.randomAble, this.hasAnimate, this.describe);
+  GameEvent({
+    required this.title,
+    required this.description,
+    required this.mpEffect,
+    required this.hpEffect,
+    required this.pointEffect,
+    this.createEffect = 0,
+    this.popularEffect = 0,
+    required this.randomAble,
+  });
 
   factory GameEvent.fromJson(Map<String, dynamic> json) => _$GameEventFromJson(json);
 
