@@ -51,9 +51,9 @@ class CardModel {
   final int maxBreakthrough;
   @JsonKey(name: 'image')
   final String image;
-  final int baseHp;
-  final int baseMp;
-  final int basePoint;
+  int baseHp;
+  int baseMp;
+  int basePoint;
   final int baseCreate;
   final int basePopular;
 
@@ -74,7 +74,7 @@ class CardModel {
     required this.image,
     this.level = 1,
     this.currentExp = 0,
-    this.maxLevel = 10,
+    this.maxLevel = 20,
     this.hpBonus = 0,
     this.mpBonus = 0,
     this.pointsBonus = 0,
@@ -101,23 +101,91 @@ class CardModel {
     return level * 100;
   }
 
+  int get maxLevelWithBreakthrough {
+    // 基礎等級上限
+    final baseMaxLevel = switch (rank) {
+      CardRank.N => 20,
+      CardRank.R => 30,
+      CardRank.SR => 40,
+      CardRank.SSR => 50,
+    };
+    // 每次突破增加20級
+    return baseMaxLevel + breakthrough * 20;
+  }
+
+  bool canLevelUp(int exp) {
+    if (level >= maxLevelWithBreakthrough) return false;
+    return true;
+  }
+
+  int getMaxUsableExp() {
+    if (level >= maxLevelWithBreakthrough) return 0;
+    int remainingLevels = maxLevelWithBreakthrough - level;
+    int totalExpNeeded = 0;
+    int currentLevel = level;
+    
+    while (remainingLevels > 0) {
+      totalExpNeeded += currentLevel * 100;
+      currentLevel++;
+      remainingLevels--;
+    }
+    
+    return totalExpNeeded;
+  }
+
   void addExperience(int exp) {
-    experience += exp;
-    while (experience >= getRequiredExp() && level < maxLevel) {
-      experience -= getRequiredExp();
+    if (level >= maxLevelWithBreakthrough) return;
+    
+    int remainingExp = exp;
+    while (remainingExp >= getRequiredExp() && level < maxLevelWithBreakthrough) {
+      remainingExp -= getRequiredExp();
       level++;
     }
-    if (level >= maxLevel) {
-      experience = 0;
-    }
+    
+    // 保存剩餘的經驗值
+    currentExp = remainingExp;
   }
 
   // 計算突破所需材料
   Map<String, int> get breakthroughMaterials {
-    return {
-      'gold': (1000 * (breakthrough + 1) * (1 + rank.index * 0.5)).toInt(),
-      'exp': (500 * (breakthrough + 1) * (1 + rank.index * 0.5)).toInt(),
+    final baseExp = 1000 * (breakthrough + 1);
+    final baseGems = 100 * (breakthrough + 1);
+    
+    final multiplier = switch (rank) {
+      CardRank.N => 1,
+      CardRank.R => 2,
+      CardRank.SR => 3,
+      CardRank.SSR => 4,
     };
+
+    return {
+      'exp': baseExp * multiplier,
+      'gem': baseGems * multiplier,
+    };
+  }
+
+  int getBreakthroughExpCost() {
+    return breakthroughMaterials['exp'] ?? 0;
+  }
+
+  int getBreakthroughGemCost() {
+    return breakthroughMaterials['gem'] ?? 0;
+  }
+
+  int getMaxExpForCurrentBreakthrough() {
+    final baseExp = 1000 * (breakthrough + 1);
+    return baseExp * switch (rank) {
+      CardRank.N => 1,
+      CardRank.R => 2,
+      CardRank.SR => 3,
+      CardRank.SSR => 4,
+    };
+  }
+
+  bool get canBreakthrough {
+    if (breakthrough >= maxBreakthrough) return false;
+    if (level < (breakthrough + 1) * 20) return false;
+    return true;
   }
 
   // 計算當前屬性加成
@@ -131,9 +199,6 @@ class CardModel {
       'popular': (popularityBonus * multiplier).toInt(),
     };
   }
-
-  // 是否可以突破
-  bool get canBreakthrough => breakthrough < maxBreakthrough;
 
   // 突破
   void breakthroughCard() {
@@ -169,7 +234,7 @@ class CardModel {
       image: json['image'],
       level: json['level'] ?? 1,
       currentExp: json['currentExp'] ?? 0,
-      maxLevel: json['maxLevel'] ?? 10,
+      maxLevel: json['maxLevel'] ?? 20,
       hpBonus: json['hpBonus'] ?? 0,
       mpBonus: json['mpBonus'] ?? 0,
       pointsBonus: json['pointsBonus'] ?? 0,

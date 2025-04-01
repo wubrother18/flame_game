@@ -33,9 +33,9 @@ class _AchievementPageState extends State<AchievementPage> {
   Future<void> _claimReward(Achievement achievement) async {
     if (!achievement.canClaim) return;
 
-    final reward = await _manager.claimReward(achievement.type, int.parse(achievement.id));
+    final reward = await _manager.claimReward(achievement.type, achievement.id);
     if (reward.expReward > 0) {
-      await CardManager.instance.addExperienceFromAchievement(reward.expReward);
+      await CardManager.instance.addExperienceFromAchievement(reward.expReward,reward.itemRewards['gem'] ?? 0);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('獲得 ${reward.expReward} 經驗值和 ${reward.itemRewards['gem'] ?? 0} 寶石'),

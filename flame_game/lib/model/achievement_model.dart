@@ -35,22 +35,30 @@ class Achievement {
   double get progressPercentage => currentProgress / maxProgress;
 
   // 獲取成就圖標
-  IconData get categoryIcon {
+  IconData? get categoryIcon {
     return switch (type) {
       AchievementType.collection => Icons.collections_bookmark,
       AchievementType.level => Icons.trending_up,
       AchievementType.event => Icons.event,
-      AchievementType.special => Icons.star,
+      AchievementType.popularity => Icons.favorite,
+      AchievementType.creativity => Icons.lightbulb,
+      AchievementType.professional => Icons.workspace_premium,
+      AchievementType.writing => Icons.edit_note,
+      AchievementType.login => Icons.calendar_today,
     };
   }
 
   // 獲取成就顏色
-  Color get categoryColor {
+  MaterialColor? get categoryColor {
     return switch (type) {
       AchievementType.collection => Colors.purple,
       AchievementType.level => Colors.green,
       AchievementType.event => Colors.orange,
-      AchievementType.special => Colors.amber,
+      AchievementType.popularity => Colors.red,
+      AchievementType.creativity => Colors.yellow,
+      AchievementType.professional => Colors.blue,
+      AchievementType.writing => Colors.teal,
+      AchievementType.login => Colors.indigo,
     };
   }
 

@@ -9,6 +9,7 @@ class Role {
   int _hp = 100;
   int _mp = 100;
   int _point = 0;
+  int _professional = 0;
   int _create = 0;
   int _popular = 0;
   int _level = 1;
@@ -19,6 +20,7 @@ class Role {
   int get hp => _hp;
   int get mp => _mp;
   int get point => _point;
+  int get professional => _professional;
   int get create => _create;
   int get popular => _popular;
   int get level => _level;
@@ -34,6 +36,7 @@ class Role {
   set hp(int value) => _hp = value.clamp(0, 99999);
   set mp(int value) => _mp = value.clamp(0, 99999);
   set point(int value) => _point = value.clamp(0, 99999);
+  set professional(int value) => _professional = value.clamp(0, 99999);
   set create(int value) => _create = value.clamp(0, 99999);
   set popular(int value) => _popular = value.clamp(0, 99999);
   set level(int value) => _level = value.clamp(1, 100);
@@ -103,8 +106,8 @@ class Role {
       hp += card.hpAdd;
       mp += card.mpAdd;
       point += card.pointAdd;
-      create += card.createAdd ?? 0;
-      popular += card.popularAdd ?? 0;
+      // create += card.createAdd ?? 0;
+      // popular += card.popularAdd ?? 0;
     }
   }
 }

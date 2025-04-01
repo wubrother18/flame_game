@@ -17,7 +17,9 @@ import 'package:flame_game/page/result_page.dart';
 import 'package:flame_game/page/gacha_page.dart';
 import 'package:flame_game/page/card_growth_page.dart';
 import 'package:flame_game/page/test_page.dart';
+import 'package:flame_game/page/card_detail_page.dart';
 import 'package:flame_game/model/card_model.dart';
+import 'package:flame_game/theme/app_theme.dart';
 
 Future<void> main() async {
   ///連結硬體
@@ -49,10 +51,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: '30 days Achieve',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       builder: (BuildContext? context, Widget? child) {
         final MediaQueryData data = MediaQuery.of(context!);
         return MediaQuery(
@@ -67,11 +66,14 @@ class MyApp extends StatelessWidget {
         '/collection': (context) => const CardCollectionPage(),
         '/achievement': (context) => const AchievementPage(),
         '/game': (context) => GamePage(
-          cardList: ModalRoute.of(context)!.settings.arguments as List<CardModel>,
+          selectedCards: ModalRoute.of(context)!.settings.arguments as List<CardModel>,
         ),
         '/result': (context) => ResultPage(result: {}), // TODO: Pass actual result
         '/gacha': (context) => const GachaPage(),
         '/growth': (context) => CardGrowthPage(
+          card: ModalRoute.of(context)!.settings.arguments as CardModel,
+        ),
+        '/card_detail': (context) => CardDetailPage(
           card: ModalRoute.of(context)!.settings.arguments as CardModel,
         ),
         '/test': (context) => const TestPage(),

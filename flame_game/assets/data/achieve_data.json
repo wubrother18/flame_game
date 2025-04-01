@@ -1,90 +1,338 @@
-{
-  "collection": {
-    "1": {
-      "name": "卡片收藏家",
-      "description": "收集1張不同的卡片",
-      "expReward": 100,
-      "itemRewards": {
-        "gem": 10
-      }
+[
+  {
+    "id": "collection_1",
+    "name": "卡片收藏學徒",
+    "description": "收集1張不同的卡片",
+    "type": "collection",
+    "maxProgress": 1,
+    "expReward": 1000000000000,
+    "itemRewards": {
+      "gem": 1000000000000
     },
-    "5": {
-      "name": "卡片收藏家",
-      "description": "收集5張不同的卡片",
-      "expReward": 500,
-      "itemRewards": {
-        "gem": 50
-      }
-    },
-    "10": {
-      "name": "卡片收藏家",
-      "description": "收集10張不同的卡片",
-      "expReward": 1000,
-      "itemRewards": {
-        "gem": 100
-      }
-    }
+    "tier": 1
   },
-  "level": {
-    "10": {
-      "name": "成長達人",
-      "description": "將任意卡片提升到10級",
-      "expReward": 1000,
-      "itemRewards": {
-        "gem": 100
-      }
+  {
+    "id": "collection_5",
+    "name": "卡片收藏專家",
+    "description": "收集5張不同的卡片",
+    "type": "collection",
+    "maxProgress": 5,
+    "expReward": 500,
+    "itemRewards": {
+      "gem": 50
     },
-    "30": {
-      "name": "成長達人",
-      "description": "將任意卡片提升到30級",
-      "expReward": 3000,
-      "itemRewards": {
-        "gem": 300
-      }
-    },
-    "50": {
-      "name": "成長達人",
-      "description": "將任意卡片提升到50級",
-      "expReward": 5000,
-      "itemRewards": {
-        "gem": 500
-      }
-    }
+    "tier": 2
   },
-  "event": {
-    "1": {
-      "name": "事件專家",
-      "description": "完成1個事件",
-      "expReward": 200,
-      "itemRewards": {
-        "gem": 20
-      }
+  {
+    "id": "collection_10",
+    "name": "卡片收藏大師",
+    "description": "收集10張不同的卡片",
+    "type": "collection",
+    "maxProgress": 10,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
     },
-    "3": {
-      "name": "事件專家",
-      "description": "完成3個事件",
-      "expReward": 600,
-      "itemRewards": {
-        "gem": 60
-      }
-    },
-    "5": {
-      "name": "事件專家",
-      "description": "完成5個事件",
-      "expReward": 1000,
-      "itemRewards": {
-        "gem": 100
-      }
-    }
+    "tier": 3
   },
-  "special": {
-    "1": {
-      "name": "特殊成就",
-      "description": "完成特殊成就",
-      "expReward": 1000,
-      "itemRewards": {
-        "gem": 100
-      }
-    }
+  {
+    "id": "level_10",
+    "name": "見習玩家",
+    "description": "角色等級達到10級",
+    "type": "level",
+    "maxProgress": 10,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
+    },
+    "tier": 1
+  },
+  {
+    "id": "level_30",
+    "name": "資深玩家",
+    "description": "角色等級達到30級",
+    "type": "level",
+    "maxProgress": 30,
+    "expReward": 3000,
+    "itemRewards": {
+      "gem": 300
+    },
+    "tier": 2
+  },
+  {
+    "id": "level_50",
+    "name": "傳奇玩家",
+    "description": "角色等級達到50級",
+    "type": "level",
+    "maxProgress": 50,
+    "expReward": 5000,
+    "itemRewards": {
+      "gem": 500
+    },
+    "tier": 3
+  },
+  {
+    "id": "event_1",
+    "name": "事件探索者",
+    "description": "完成1個事件",
+    "type": "event",
+    "maxProgress": 1,
+    "expReward": 200,
+    "itemRewards": {
+      "gem": 20
+    },
+    "tier": 1
+  },
+  {
+    "id": "event_3",
+    "name": "事件獵人",
+    "description": "完成3個事件",
+    "type": "event",
+    "maxProgress": 3,
+    "expReward": 600,
+    "itemRewards": {
+      "gem": 60
+    },
+    "tier": 2
+  },
+  {
+    "id": "event_5",
+    "name": "事件大師",
+    "description": "完成5個事件",
+    "type": "event",
+    "maxProgress": 5,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
+    },
+    "tier": 3
+  },
+  {
+    "id": "popularity_50",
+    "name": "人氣新星",
+    "description": "人氣達到50",
+    "type": "popularity",
+    "maxProgress": 50,
+    "expReward": 500,
+    "itemRewards": {
+      "gem": 50
+    },
+    "tier": 1
+  },
+  {
+    "id": "popularity_100",
+    "name": "人氣新秀",
+    "description": "人氣達到100",
+    "type": "popularity",
+    "maxProgress": 100,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
+    },
+    "tier": 2
+  },
+  {
+    "id": "popularity_500",
+    "name": "人氣之星",
+    "description": "人氣達到500",
+    "type": "popularity",
+    "maxProgress": 500,
+    "expReward": 5000,
+    "itemRewards": {
+      "gem": 500
+    },
+    "tier": 3
+  },
+  {
+    "id": "popularity_1000",
+    "name": "人氣巨星",
+    "description": "人氣達到1000",
+    "type": "popularity",
+    "maxProgress": 1000,
+    "expReward": 10000,
+    "itemRewards": {
+      "gem": 1000
+    },
+    "tier": 4
+  },
+  {
+    "id": "popularity_5000",
+    "name": "人氣傳奇",
+    "description": "人氣達到5000",
+    "type": "popularity",
+    "maxProgress": 5000,
+    "expReward": 50000,
+    "itemRewards": {
+      "gem": 5000
+    },
+    "tier": 5
+  },
+  {
+    "id": "creativity_50",
+    "name": "創意萌芽",
+    "description": "創意達到50",
+    "type": "creativity",
+    "maxProgress": 50,
+    "expReward": 500,
+    "itemRewards": {
+      "gem": 50
+    },
+    "tier": 1
+  },
+  {
+    "id": "creativity_100",
+    "name": "創意綻放",
+    "description": "創意達到100",
+    "type": "creativity",
+    "maxProgress": 100,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
+    },
+    "tier": 2
+  },
+  {
+    "id": "creativity_500",
+    "name": "創意飛揚",
+    "description": "創意達到500",
+    "type": "creativity",
+    "maxProgress": 500,
+    "expReward": 5000,
+    "itemRewards": {
+      "gem": 500
+    },
+    "tier": 3
+  },
+  {
+    "id": "creativity_1000",
+    "name": "創意大師",
+    "description": "創意達到1000",
+    "type": "creativity",
+    "maxProgress": 1000,
+    "expReward": 10000,
+    "itemRewards": {
+      "gem": 1000
+    },
+    "tier": 4
+  },
+  {
+    "id": "creativity_5000",
+    "name": "創意傳奇",
+    "description": "創意達到5000",
+    "type": "creativity",
+    "maxProgress": 5000,
+    "expReward": 50000,
+    "itemRewards": {
+      "gem": 5000
+    },
+    "tier": 5
+  },
+  {
+    "id": "professional_50",
+    "name": "專業學徒",
+    "description": "專業度達到50",
+    "type": "professional",
+    "maxProgress": 50,
+    "expReward": 500,
+    "itemRewards": {
+      "gem": 50
+    },
+    "tier": 1
+  },
+  {
+    "id": "professional_100",
+    "name": "專業專家",
+    "description": "專業度達到100",
+    "type": "professional",
+    "maxProgress": 100,
+    "expReward": 1000,
+    "itemRewards": {
+      "gem": 100
+    },
+    "tier": 2
+  },
+  {
+    "id": "professional_500",
+    "name": "專業大師",
+    "description": "專業度達到500",
+    "type": "professional",
+    "maxProgress": 500,
+    "expReward": 5000,
+    "itemRewards": {
+      "gem": 500
+    },
+    "tier": 3
+  },
+  {
+    "id": "professional_1000",
+    "name": "專業宗師",
+    "description": "專業度達到1000",
+    "type": "professional",
+    "maxProgress": 1000,
+    "expReward": 10000,
+    "itemRewards": {
+      "gem": 1000
+    },
+    "tier": 4
+  },
+  {
+    "id": "professional_5000",
+    "name": "專業傳奇",
+    "description": "專業度達到5000",
+    "type": "professional",
+    "maxProgress": 5000,
+    "expReward": 50000,
+    "itemRewards": {
+      "gem": 5000
+    },
+    "tier": 5
+  },
+  {
+    "id": "writing_7",
+    "name": "寫作新星",
+    "description": "完成7天的寫作挑戰",
+    "type": "writing",
+    "maxProgress": 7,
+    "expReward": 7000,
+    "itemRewards": {
+      "gem": 700
+    },
+    "tier": 1
+  },
+  {
+    "id": "writing_14",
+    "name": "寫作新秀",
+    "description": "完成14天的寫作挑戰",
+    "type": "writing",
+    "maxProgress": 14,
+    "expReward": 14000,
+    "itemRewards": {
+      "gem": 1400
+    },
+    "tier": 2
+  },
+  {
+    "id": "writing_21",
+    "name": "寫作大師",
+    "description": "完成21天的寫作挑戰",
+    "type": "writing",
+    "maxProgress": 21,
+    "expReward": 21000,
+    "itemRewards": {
+      "gem": 2100
+    },
+    "tier": 3
+  },
+  {
+    "id": "writing_30",
+    "name": "寫作傳奇",
+    "description": "完成30天的寫作挑戰",
+    "type": "writing",
+    "maxProgress": 30,
+    "expReward": 30000,
+    "itemRewards": {
+      "gem": 3000
+    },
+    "tier": 4
   }
-}
+]

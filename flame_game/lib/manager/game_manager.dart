@@ -19,6 +19,7 @@ class GameManager {
   StoryManager? storyManager;
   List<CardModel>? cardList;
   int day = 1;
+  int professional = 0;
   int create = 0;
   int point = 0;
   int popular = 0;
@@ -111,30 +112,6 @@ class GameManager {
     );
   }
 
-  void getNext() {
-    if (day == 30) {
-      end("pass");
-      return;
-    }
-    if (role.hp <= 0) {
-      end("fail");
-      return;
-    }
-
-    var cd = random.nextInt(role.mp);
-    create += cd;
-    role.mp -= cd;
-    
-    var pd = random.nextInt(role.point);
-    point += pd;
-    role.point -= pd;
-    
-    var newPopular = random.nextInt(100);
-    popular += newPopular;
-    
-    _generateEvents();
-  }
-
   void handleEvent(GameEvent event) {
     if (role.hp < 15 && event.hpEffect >= 0) {
       return;
@@ -192,7 +169,7 @@ class GameManager {
 
     int level = role.level;
     role.create += requiredMp * level;
-    role.point += requiredPp * level;
+    role.professional += requiredPp * level;
     
     int totalConsumed = requiredMp + requiredPp;
     double popularityMultiplier = random.nextDouble();
@@ -203,12 +180,43 @@ class GameManager {
     }
   }
 
-  void _checkAchievements() async {
-    // 更新成就進度
+  Future<void> _checkAchievements() async {
+    // 檢查事件成就
     await achieveManager.updateProgress(AchievementType.event, 1, selectedEventCount);
+    await achieveManager.updateProgress(AchievementType.event, 3, selectedEventCount);
+    await achieveManager.updateProgress(AchievementType.event, 5, selectedEventCount);
+
+    // 檢查等級成就
     await achieveManager.updateProgress(AchievementType.level, 10, role.level);
-    await achieveManager.updateProgress(AchievementType.collection, 1, cardList?.length ?? 0);
-    await achieveManager.updateProgress(AchievementType.special, 1, popular);
+    await achieveManager.updateProgress(AchievementType.level, 30, role.level);
+    await achieveManager.updateProgress(AchievementType.level, 50, role.level);
+
+    // 檢查人氣成就
+    await achieveManager.updateProgress(AchievementType.popularity, 50, popular);
+    await achieveManager.updateProgress(AchievementType.popularity, 100, popular);
+    await achieveManager.updateProgress(AchievementType.popularity, 500, popular);
+    await achieveManager.updateProgress(AchievementType.popularity, 1000, popular);
+    await achieveManager.updateProgress(AchievementType.popularity, 5000, popular);
+
+    // 檢查創意成就
+    await achieveManager.updateProgress(AchievementType.creativity, 50, role.create);
+    await achieveManager.updateProgress(AchievementType.creativity, 100, role.create);
+    await achieveManager.updateProgress(AchievementType.creativity, 500, role.create);
+    await achieveManager.updateProgress(AchievementType.creativity, 1000, role.create);
+    await achieveManager.updateProgress(AchievementType.creativity, 5000, role.create);
+
+    // 檢查專業度成就
+    await achieveManager.updateProgress(AchievementType.professional, 50, role.professional);
+    await achieveManager.updateProgress(AchievementType.professional, 100, role.professional);
+    await achieveManager.updateProgress(AchievementType.professional, 500, role.professional);
+    await achieveManager.updateProgress(AchievementType.professional, 1000, role.professional);
+    await achieveManager.updateProgress(AchievementType.professional, 5000, role.professional);
+
+    // 檢查寫作成就
+    await achieveManager.updateProgress(AchievementType.writing, 7, day);
+    await achieveManager.updateProgress(AchievementType.writing, 14, day);
+    await achieveManager.updateProgress(AchievementType.writing, 21, day);
+    await achieveManager.updateProgress(AchievementType.writing, 30, day);
   }
 
   void end(String result) {
@@ -226,7 +234,7 @@ class GameManager {
     int levelBonus = role.level * 100;
     int popularBonus = popular * 10;
     int createBonus = create * 5;
-    int pointBonus = point * 5;
+    int pointBonus = professional * 5;
     
     return baseScore + levelBonus + popularBonus + createBonus + pointBonus;
   }

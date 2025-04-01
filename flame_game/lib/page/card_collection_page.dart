@@ -2,6 +2,11 @@ import 'package:flame_game/page/card_growth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/manager/card_manager.dart';
+import 'package:flame_game/theme/app_theme.dart';
+import 'package:flame_game/utils/responsive.dart';
+import 'package:flame_game/model/enums.dart';
+import 'package:flame_game/widgets/sci_fi_background.dart';
+import 'package:flame_game/page/card_detail_page.dart';
 
 class CardCollectionPage extends StatefulWidget {
   const CardCollectionPage({super.key});
@@ -10,23 +15,38 @@ class CardCollectionPage extends StatefulWidget {
   State<CardCollectionPage> createState() => _CardCollectionPageState();
 }
 
-class _CardCollectionPageState extends State<CardCollectionPage> {
+class _CardCollectionPageState extends State<CardCollectionPage> with SingleTickerProviderStateMixin {
   final CardManager _cardManager = CardManager.instance;
   final TextEditingController _searchController = TextEditingController();
   String _selectedType = '全部';
   String _sortBy = '等級';
   bool _showCollectedOnly = true;
   List<CardModel> _displayedCards = [];
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  String _searchQuery = '';
+  CardRank? _selectedRank;
 
   @override
   void initState() {
     super.initState();
     _loadCards();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -37,10 +57,8 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
 
   void _filterCards() {
     setState(() {
-      // 獲取基礎卡片列表
       var cards = List<CardModel>.from(_showCollectedOnly ? _cardManager.collectedCards : _cardManager.allCards);
       
-      // 應用搜索過濾
       if (_searchController.text.isNotEmpty) {
         final searchText = _searchController.text.toLowerCase();
         cards = cards.where((card) => 
@@ -49,12 +67,10 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
         ).toList();
       }
       
-      // 應用類型過濾
       if (_selectedType != '全部') {
         cards = cards.where((card) => card.name == _selectedType).toList();
       }
       
-      // 應用排序
       switch (_sortBy) {
         case '等級':
           cards.sort((a, b) {
@@ -76,165 +92,410 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
             return b.collectedAt!.compareTo(a.collectedAt!);
           });
           break;
+        case '稀有度':
+          cards.sort((a, b) {
+            // 定義稀有度順序
+            final rarityOrder = {
+              CardRank.SSR: 4,
+              CardRank.SR: 3,
+              CardRank.R: 2,
+              CardRank.N: 1,
+            };
+            final rarityCompare = rarityOrder[b.rank]!.compareTo(rarityOrder[a.rank]!);
+            return rarityCompare != 0 ? rarityCompare : b.level.compareTo(a.level);
+          });
+          break;
       }
       
       _displayedCards = cards;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('卡片收藏'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+  Widget _buildFilterChip(String label, bool isSelected, VoidCallback onSelected) {
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (bool selected) {
+        if (selected != isSelected) {
+          onSelected();
+        }
+      },
+      backgroundColor: Colors.white.withOpacity(0.8),
+      selectedColor: AppTheme.primaryColor.withOpacity(0.2),
+      checkmarkColor: AppTheme.primaryColor,
+      labelStyle: TextStyle(
+        color: isSelected ? AppTheme.primaryColor : AppTheme.textColor,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade100,
-              Colors.blue.shade50,
-            ],
-          ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
+          width: isSelected ? 2 : 1,
         ),
-        child: Column(
-          children: [
-            // 搜索和過濾區域
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
+      ),
+    );
+  }
+
+  Widget _buildCardPreview(CardModel card) {
+    return MouseRegion(
+      onEnter: (_) => _animationController.forward(),
+      onExit: (_) => _animationController.reverse(),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Card(
+          elevation: 8,
+          shadowColor: Colors.black26,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/card_detail', arguments: card);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _getRankColor(card.rank).withOpacity(0.8),
+                    _getRankColor(card.rank).withOpacity(0.6),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+              ),
+              child: Stack(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: '搜索卡片...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: CardBackgroundPainter(
+                        color: _getRankColor(card.rank).withOpacity(0.1),
                       ),
                     ),
-                    onChanged: (value) => _filterCards(),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedType,
-                          decoration: InputDecoration(
-                            labelText: '卡片類型',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        flex: 3,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(AppTheme.borderRadius),
                             ),
                           ),
-                          items: ['全部', '程式設計師', '設計師', '專案經理', '行銷專員']
-                              .map((type) => DropdownMenuItem(
-                                    value: type,
-                                    child: Text(type),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedType = value!;
-                            });
-                            _filterCards();
-                          },
+                          child: Stack(
+                            children: [
+                              Center(
+                                child: card.image != null && card.image!.isNotEmpty
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                                        child: Image.asset(
+                                          card.image!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Icon(
+                                              _getCardIcon(card.name),
+                                              size: 64,
+                                              color: Colors.white.withOpacity(0.9),
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : Icon(
+                                        _getCardIcon(card.name),
+                                        size: 64,
+                                        color: Colors.white.withOpacity(0.9),
+                                      ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black26,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.white24,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    card.rank.name,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black26,
+                                          offset: Offset(0, 1),
+                                          blurRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 8,
+                                left: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.amber.withOpacity(0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.star,
+                                        size: 16,
+                                        color: Colors.amber,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Lv. ${card.level}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                              blurRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 16),
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _sortBy,
-                          decoration: InputDecoration(
-                            labelText: '排序方式',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(AppTheme.borderRadius),
                             ),
                           ),
-                          items: ['等級', '名稱', '收集時間']
-                              .map((sort) => DropdownMenuItem(
-                                    value: sort,
-                                    child: Text(sort),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _sortBy = value!;
-                            });
-                            _filterCards();
-                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                card.name,
+                                style: TextStyle(
+                                  fontSize: Responsive.getFontSize(context, 16),
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textColor,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black12,
+                                      offset: const Offset(0, 1),
+                                      blurRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    _getCardIcon(card.name),
+                                    size: 16,
+                                    color: AppTheme.textLightColor,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    card.name.split(' ').last,
+                                    style: TextStyle(
+                                      fontSize: Responsive.getFontSize(context, 14),
+                                      color: AppTheme.textLightColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _showCollectedOnly,
-                        onChanged: (value) {
-                          setState(() {
-                            _showCollectedOnly = value!;
-                          });
-                          _filterCards();
-                        },
-                      ),
-                      const Text('只顯示已收集的卡片'),
                     ],
                   ),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
 
-            // 卡片列表
-            Expanded(
-              child: _displayedCards.isEmpty
-                  ? const Center(
-                      child: Text(
-                        '沒有找到符合條件的卡片',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+  Color _getRankColor(CardRank rank) {
+    return switch (rank) {
+      CardRank.SSR => Colors.amber.shade700,
+      CardRank.SR => Colors.blue.shade700,
+      CardRank.R => Colors.green.shade700,
+      CardRank.N => Colors.grey.shade700,
+    };
+  }
+
+  IconData _getCardIcon(String name) {
+    if (name.contains('工程')) {
+      return Icons.code;
+    } else if (name.contains('設計')) {
+      return Icons.palette;
+    } else if (name.contains('經理')) {
+      return Icons.assignment;
+    } else if (name.contains('行銷')) {
+      return Icons.trending_up;
+    } else {
+      return Icons.person;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SciFiBackground(
+      primaryColor: const Color(0xFF2E1A1A),
+      secondaryColor: const Color(0xFF3E1616),
+      accentColor: const Color(0xFF600F0F),
+      gridSize: 30,
+      lineWidth: 1,
+      glowIntensity: 0.5,
+      gradientColors: [
+        const Color(0xFF2E1A1A),
+        const Color(0xFF3E1616),
+        const Color(0xFF600F0F),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text(
+            '卡片收藏',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Color(0xFF600F0F),
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: '搜索卡片...',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                        prefixIcon: const Icon(Icons.search, color: Colors.white),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _displayedCards.length,
-                      itemBuilder: (context, index) {
-                        final card = _displayedCards[index];
-                        return Card(
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundImage: AssetImage(card.image),
-                              radius: 30,
-                            ),
-                            title: Text(card.name),
-                            subtitle: Text(
-                              '等級: ${card.level}\n'
-                              '稀有度: ${card.rank.name}',
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.arrow_forward_ios),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => CardGrowthPage(
-                                      card: card,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DropdownButton<CardRank>(
+                      value: _selectedRank,
+                      hint: const Text(
+                        '全部',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      dropdownColor: const Color(0xFF2E1A1A),
+                      underline: const SizedBox(),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('全部'),
+                        ),
+                        ...CardRank.values.map((rank) {
+                          return DropdownMenuItem(
+                            value: rank,
+                            child: Text(rank.name),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRank = value;
+                        });
                       },
                     ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: _filteredCards.length,
+                itemBuilder: (context, index) {
+                  final card = _filteredCards[index];
+                  return _buildCardItem(card);
+                },
+              ),
             ),
           ],
         ),
@@ -242,58 +503,52 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
     );
   }
 
-  Widget _buildCardItem(CardModel card) {
-    final isCollected = card.isCollected;
-    final stats = card.getCurrentStats();
+  List<CardModel> get _filteredCards {
+    return _cardManager.collectedCards.where((card) {
+      final matchesSearch = _searchQuery.isEmpty ||
+          card.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          card.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesRank = _selectedRank == null || card.rank == _selectedRank;
+      return matchesSearch && matchesRank;
+    }).toList();
+  }
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: InkWell(
-        onTap: isCollected ? () => _showCardDetails(card) : null,
+  Widget _buildCardItem(CardModel card) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CardDetailPage(card: card),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: _getRankColor(card.rank).withOpacity(0.5),
+            width: 2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _getRankColor(card.rank).withOpacity(0.3),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isCollected ? card.rarityColor.withOpacity(0.2) : Colors.grey.shade200,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(15),
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      card.name,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isCollected ? card.rarityColor : Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      card.rank.name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isCollected ? card.rarityColor.withOpacity(0.7) : Colors.grey.shade600,
-                      ),
-                    ),
-                    if (isCollected && card.collectedAt != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        '收集於: ${_formatDate(card.collectedAt!)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    ],
-                  ],
+            Container(
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                image: DecorationImage(
+                  image: AssetImage(card.image),
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -303,48 +558,47 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('等級'),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getRankColor(card.rank).withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          card.rank.name,
+                          style: TextStyle(
+                            color: _getRankColor(card.rank),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
                       Text(
-                        card.level.toString(),
-                        style: TextStyle(
+                        'Lv.${card.level}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: card.rarityColor,
                         ),
                       ),
                     ],
                   ),
-                  if (isCollected) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () => Navigator.pushNamed(
-                            context,
-                            '/growth',
-                            arguments: card,
-                          ),
-                          icon: const Icon(Icons.trending_up),
-                          label: const Text('成長'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: card.rarityColor,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () => _showCardDetails(card),
-                          icon: const Icon(Icons.info_outline),
-                          label: const Text('詳情'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
-                            foregroundColor: Colors.white,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 4),
+                  Text(
+                    card.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
@@ -353,96 +607,39 @@ class _CardCollectionPageState extends State<CardCollectionPage> {
       ),
     );
   }
+}
 
-  String _formatDate(DateTime date) {
-    return '${date.year}/${date.month}/${date.day}';
+class CardBackgroundPainter extends CustomPainter {
+  final Color color;
+
+  CardBackgroundPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    final path = Path();
+    final width = size.width;
+    final height = size.height;
+
+    // 繪製裝飾性線條
+    for (var i = 0; i < 3; i++) {
+      path.moveTo(0, height * (i + 1) / 4);
+      path.lineTo(width, height * (i + 1) / 4);
+    }
+
+    // 繪製對角線
+    path.moveTo(0, 0);
+    path.lineTo(width, height);
+    path.moveTo(width, 0);
+    path.lineTo(0, height);
+
+    canvas.drawPath(path, paint);
   }
 
-  void _showCardDetails(CardModel card) {
-    final stats = card.getCurrentStats();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(card.name),
-            Text(
-              card.rank.name,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('等級: ${card.level}'),
-            const SizedBox(height: 8),
-            Text('HP加成: ${stats['hpAdd']}'),
-            Text('MP加成: ${stats['mpAdd']}'),
-            Text('專業度加成: ${stats['pointAdd']}'),
-            Text('創造力加成: ${stats['createAdd']}'),
-            Text('人氣加成: ${stats['popularAdd']}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('關閉'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showUpgradeDialog(CardModel card) {
-    final cost = card.getUpgradeCost();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('升級 ${card.name}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('當前等級: ${card.level}'),
-            Text('升級後等級: ${card.level + 1}'),
-            const SizedBox(height: 16),
-            Text('所需資源:'),
-            Text('專業度: ${cost['point']}'),
-            Text('創造力: ${cost['create']}'),
-            Text('人氣: ${cost['popular']}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (await _cardManager.upgradeCard(card)) {
-                Navigator.pop(context);
-                _filterCards();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('升級成功')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('資源不足，無法升級')),
-                );
-              }
-            },
-            child: const Text('升級'),
-          ),
-        ],
-      ),
-    );
-  }
-} 
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}

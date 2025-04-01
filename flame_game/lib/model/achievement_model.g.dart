@@ -34,8 +34,12 @@ Map<String, dynamic> _$AchievementToJson(Achievement instance) =>
     };
 
 const _$AchievementTypeEnumMap = {
+  AchievementType.login: 'login',
   AchievementType.collection: 'collection',
   AchievementType.level: 'level',
   AchievementType.event: 'event',
-  AchievementType.special: 'special',
+  AchievementType.popularity: 'popularity',
+  AchievementType.creativity: 'creativity',
+  AchievementType.professional: 'professional',
+  AchievementType.writing: 'writing',
 };

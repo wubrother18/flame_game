@@ -7,36 +7,43 @@ import 'package:flame_game/model/achievement_model.dart';
 import 'package:flame_game/static.dart';
 import 'package:flame_game/page/achievement_page.dart';
 import 'package:flame_game/widget/common_app_bar.dart';
-import 'package:flame_game/widget/achievement_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flame_game/widgets/sci_fi_background.dart';
 
 import '../game/main_screen.dart';
 import '../model/card_model.dart';
+import '../manager/achievement_manager.dart';
 
 class GamePage extends StatefulWidget {
-  final List<CardModel> cardList;
+  final List<CardModel> selectedCards;
 
-  const GamePage({super.key, required this.cardList});
+  const GamePage({
+    super.key,
+    required this.selectedCards,
+  });
 
   @override
   State<GamePage> createState() => _GamePageState();
 }
 
 class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin {
-  late GameManager gameManager;
+  final GameManager gameManager = GameManager.ins();
+  final AchievementManager achievementManager = AchievementManager.instance;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _slideAnimation;
   bool _isTutorialShown = false;
   int _currentTutorialStep = 0;
   OverlayEntry? _achievementOverlay;
+  int _currentDay = 1;
+  final int _maxDays = 30;
+  int _currentCardIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    gameManager = GameManager();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
@@ -47,7 +54,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     _checkTutorial();
 
     // 初始化遊戲管理器
-    gameManager.init(widget.cardList, (end) {
+    gameManager.init(widget.selectedCards, (end) {
       if (end == "daily_summary") {
         _showDailySummaryDialog(
           gameManager.day * 10,
@@ -326,37 +333,56 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        title: '30天煉成遊戲',
-        achievementManager: StaticFunction.instance.achieveManager,
-        onAchievementPressed: () {
-          _showAchievements();
-        },
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.blue.shade100,
-              Colors.blue.shade50,
-            ],
+    return SciFiBackground(
+      primaryColor: const Color(0xFF1A2E2E),
+      secondaryColor: const Color(0xFF163E3E),
+      accentColor: const Color(0xFF0F6060),
+      gridSize: 20,
+      lineWidth: 1,
+      glowIntensity: 0.4,
+      gradientColors: [
+        const Color(0xFF1A2E2E),
+        const Color(0xFF163E3E),
+        const Color(0xFF0F6060),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text(
+            '30天煉成遊戲',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  color: Color(0xFF0F6060),
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.emoji_events),
+              onPressed: _showAchievements,
+            ),
+          ],
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: Column(
-                          children: [
+            children: [
               _buildHeader(),
               Expanded(
                 child: _buildMainContent(),
               ),
               _buildBottomBar(),
-                                  ],
-                                ),
-                              ),
-                            ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -377,21 +403,18 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: Colors.teal.withOpacity(0.5),
+          width: 2,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildProgressItem('創意', gameManager.role.create),
-          _buildProgressItem('專業', gameManager.role.point),
+          _buildProgressItem('專業', gameManager.role.professional),
           _buildProgressItem('人氣', gameManager.role.popular),
         ],
       ),
@@ -406,7 +429,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.blue,
+            color: Colors.teal,
           ),
         ),
         const SizedBox(height: 4),
@@ -415,7 +438,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.blue,
+            color: Colors.teal,
           ),
         ),
       ],
@@ -428,29 +451,26 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
+          border: Border.all(
+            color: Colors.teal.withOpacity(0.5),
+            width: 2,
+          ),
+        ),
         child: Row(
           children: [
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blue.shade100,
+                color: Colors.teal.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(40),
               ),
               child: const Icon(
                 Icons.person,
                 size: 40,
-                color: Colors.blue,
+                color: Colors.teal,
               ),
             ),
             const SizedBox(width: 16),
@@ -459,27 +479,27 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                      children: [
+                    children: [
                       Text(
                         '等級 ${gameManager.role.level}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: Colors.teal,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade100,
+                          color: Colors.teal.withOpacity(0.3),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                          child: Text(
+                        child: Text(
                           '第 ${gameManager.day} 天',
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Colors.blue,
+                            color: Colors.teal,
                           ),
                         ),
                       ),
@@ -491,11 +511,11 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                   _buildStatusBar('MP', gameManager.role.mp, Colors.blue),
                   const SizedBox(height: 4),
                   _buildStatusBar('Point', gameManager.role.point, Colors.green),
-                      ],
-                    ),
-                  ),
                 ],
               ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -518,12 +538,12 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
           child: Container(
             height: 8,
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
+              color: Colors.grey.withOpacity(0.3),
               borderRadius: BorderRadius.circular(4),
             ),
             child: FractionallySizedBox(
               widthFactor: (value / 100).clamp(0.0, 1.0),
-            child: Container(
+              child: Container(
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(4),
@@ -540,9 +560,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
             fontWeight: FontWeight.bold,
             color: color,
           ),
-                                ),
-                              ],
-                            );
+        ),
+      ],
+    );
   }
 
   Widget _buildMainContent() {
@@ -556,7 +576,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: Colors.teal,
             ),
           ),
           const SizedBox(height: 16),
@@ -581,42 +601,39 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
   Widget _buildEventCard(GameEvent event) {
     return GestureDetector(
       onTap: () => _handleEvent(event),
-                    child: Container(
+      child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colors.white.withOpacity(0.1),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          border: Border.all(
+            color: Colors.teal.withOpacity(0.5),
+            width: 2,
+          ),
         ),
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+              decoration: BoxDecoration(
+                color: Colors.teal.withOpacity(0.3),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
                 children: [
                   Icon(
                     _getEventIcon(event),
-                    color: Colors.blue,
+                    color: Colors.teal,
                     size: 24,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                        child: Text(
+                    child: Text(
                       event.title,
-                          style: const TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Colors.teal,
                       ),
                     ),
                   ),
@@ -630,7 +647,10 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 children: [
                   Text(
                     event.description,
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -681,14 +701,13 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+        color: Colors.white.withOpacity(0.1),
+        border: Border(
+          top: BorderSide(
+            color: Colors.teal.withOpacity(0.5),
+            width: 2,
           ),
-        ],
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -717,15 +736,15 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
       onTap: () {
         FlameAudio.play('poka.mp3');
         onTap();
-            },
-            child: Container(
+      },
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Colors.teal,
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
+              color: Colors.teal.withOpacity(0.3),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -952,7 +971,7 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  '第 ${gameManager.day} 天',
+                  '第 $_currentDay 天',
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.blue,

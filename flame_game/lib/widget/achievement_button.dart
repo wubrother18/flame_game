@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flame_game/manager/achievement_manager.dart';
-import 'package:flame_game/widget/achievement_dialog.dart';
 
 class AchievementButton extends StatelessWidget {
   final AchievementManager achievementManager;

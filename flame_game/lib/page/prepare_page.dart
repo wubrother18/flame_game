@@ -5,9 +5,6 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/manager/achievement_manager.dart';
 import 'package:flame_game/widget/common_app_bar.dart';
-import 'package:flame_game/widget/achievement_dialog.dart';
-import 'package:flame_game/model/enums.dart';
-import 'package:flame_game/manager/role_manager.dart';
 
 import '../manager/card_manager.dart';
 import 'achievement_page.dart';
@@ -251,7 +248,7 @@ class _PreparePageState extends State<PreparePage> with SingleTickerProviderStat
                               context,
                               MaterialPageRoute(
                                 builder: (context) => GamePage(
-                                  cardList: selectedCards,
+                                  selectedCards: selectedCards,
                                 ),
                               ),
                             );

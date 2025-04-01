@@ -69,7 +69,7 @@ class _TestPageState extends State<TestPage> {
 
     final reward = await _achievementManager.claimReward(
       AchievementType.collection,
-      1,
+      'collection_1',
     );
     setState(() {
       _testResult = '已領取成就獎勵：\n'
@@ -87,7 +87,7 @@ class _TestPageState extends State<TestPage> {
     }
 
     final card = _cardManager.collectedCards.first;
-    final success = await _cardManager.upgradeCard(card);
+    final success = await _cardManager.upgradeCard(card,1000);
 
     setState(() {
       _testResult = success

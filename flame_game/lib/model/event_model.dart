@@ -24,6 +24,9 @@ class GameEvent {
   
   @JsonKey(name: 'popularEffect')
   int popularEffect;
+
+  @JsonKey(name: 'professionalEffect')
+  int professionalEffect;
   
   @JsonKey(name: 'randomAble')
   final bool randomAble;
@@ -36,6 +39,7 @@ class GameEvent {
     required this.pointEffect,
     this.createEffect = 0,
     this.popularEffect = 0,
+    this.professionalEffect = 0,
     required this.randomAble,
   });
 

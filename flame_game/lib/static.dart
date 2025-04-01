@@ -70,7 +70,7 @@ class StaticFunction {
       id: "login_times",
       name: "登入次數",
       description: "登入遊戲",
-      type: AchievementType.special,
+      type: AchievementType.login,
       maxProgress: 1,
       expReward: 100,
       itemRewards: {},

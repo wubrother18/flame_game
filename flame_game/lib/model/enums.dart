@@ -1,8 +1,12 @@
 enum AchievementType {
+  login,         // 登入天數
   collection,    // 收集成就
   level,         // 等級成就
   event,         // 事件成就
-  special        // 特殊成就
+  popularity,    // 人氣成就
+  creativity,    // 創意成就
+  professional,  // 專業度成就
+  writing        // 寫作天數成就
 }
 
 enum GachaType {
