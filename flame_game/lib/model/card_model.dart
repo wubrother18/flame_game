@@ -22,12 +22,6 @@ class CardModel {
   final int maxLevel;
   @JsonKey(name: 'connectionNumber')
   final int connectionNumber;
-  @JsonKey(name: 'hpBonus')
-  final int hpBonus;
-  @JsonKey(name: 'mpBonus')
-  final int mpBonus;
-  @JsonKey(name: 'pointsBonus')
-  final int pointsBonus;
   @JsonKey(name: 'creativityBonus')
   final int creativityBonus;
   @JsonKey(name: 'popularityBonus')
@@ -51,6 +45,8 @@ class CardModel {
   final int maxBreakthrough;
   @JsonKey(name: 'image')
   final String image;
+  @JsonKey(name: 'icon')
+  final String icon;
   int baseHp;
   int baseMp;
   int basePoint;
@@ -58,11 +54,11 @@ class CardModel {
   final int basePopular;
 
   // 添加 getter 以匹配預期的屬性名稱
-  int get hpAdd => hpBonus;
-  int get mpAdd => mpBonus;
-  int get pointAdd => pointsBonus;
-  int get createAdd => creativityBonus;
-  int get popularAdd => popularityBonus;
+  int get hpAdd => (baseHp * 0.1).toInt();
+  int get mpAdd => (baseMp * 0.1).toInt();
+  int get pointAdd => (basePoint * 0.1).toInt();
+  int get createAdd => (baseCreate * 0.1).toInt();
+  int get popularAdd => (basePopular * 0.1).toInt();
   int get connect => connectionNumber;
   int get requiredExperience => getRequiredExp();
 
@@ -72,12 +68,10 @@ class CardModel {
     required this.description,
     required this.rank,
     required this.image,
+    required this.icon,
     this.level = 1,
     this.currentExp = 0,
     this.maxLevel = 20,
-    this.hpBonus = 0,
-    this.mpBonus = 0,
-    this.pointsBonus = 0,
     this.creativityBonus = 0,
     this.popularityBonus = 0,
     this.connectionNumber = 0,
@@ -108,6 +102,8 @@ class CardModel {
       CardRank.R => 30,
       CardRank.SR => 40,
       CardRank.SSR => 50,
+      CardRank.UR => 60,
+      CardRank.L => 70,
     };
     // 每次突破增加20級
     return baseMaxLevel + breakthrough * 20;
@@ -156,6 +152,8 @@ class CardModel {
       CardRank.R => 2,
       CardRank.SR => 3,
       CardRank.SSR => 4,
+      CardRank.UR => 5,
+      CardRank.L => 1,
     };
 
     return {
@@ -179,6 +177,8 @@ class CardModel {
       CardRank.R => 2,
       CardRank.SR => 3,
       CardRank.SSR => 4,
+      CardRank.UR => 5,
+      CardRank.L => 1,
     };
   }
 
@@ -192,11 +192,11 @@ class CardModel {
   Map<String, int> get currentStats {
     double multiplier = 1 + (level - 1) * 0.1 + breakthrough * 0.2;
     return {
-      'hp': (hpBonus * multiplier).toInt(),
-      'mp': (mpBonus * multiplier).toInt(),
-      'point': (pointsBonus * multiplier).toInt(),
-      'create': (creativityBonus * multiplier).toInt(),
-      'popular': (popularityBonus * multiplier).toInt(),
+      'hp': (baseHp * multiplier).toInt(),
+      'mp': (baseMp * multiplier).toInt(),
+      'point': (basePoint * multiplier).toInt(),
+      'create': (baseCreate * multiplier).toInt(),
+      'popular': (basePopular * multiplier).toInt(),
     };
   }
 
@@ -214,15 +214,6 @@ class CardModel {
     return true;
   }
 
-  // 獲取升級所需資源
-  Map<String, int> getUpgradeCost() {
-    return {
-      'point': pointsBonus * (level + 1),
-      'create': creativityBonus * (level + 1),
-      'popular': popularityBonus * (level + 1),
-    };
-  }
-
   factory CardModel.fromJson(Map<String, dynamic> json) {
     return CardModel(
       id: json['id'],
@@ -232,12 +223,10 @@ class CardModel {
         (e) => e.toString() == 'CardRank.${json['rank']}',
       ),
       image: json['image'],
+      icon: json['icon'],
       level: json['level'] ?? 1,
       currentExp: json['currentExp'] ?? 0,
       maxLevel: json['maxLevel'] ?? 20,
-      hpBonus: json['hpBonus'] ?? 0,
-      mpBonus: json['mpBonus'] ?? 0,
-      pointsBonus: json['pointsBonus'] ?? 0,
       creativityBonus: json['creativityBonus'] ?? 0,
       popularityBonus: json['popularityBonus'] ?? 0,
       connectionNumber: json['connectionNumber'] ?? 0,
@@ -282,142 +271,6 @@ class CardModel {
       default:
         return Colors.grey;
     }
-  }
-
-  factory CardModel.createProgrammerCard({
-    required String name,
-    required CardRank rank,
-    required int connect,
-    required int hpAdd,
-    required int mpAdd,
-    required int pointAdd,
-    required int createAdd,
-    required int popularAdd,
-  }) {
-    return CardModel(
-      id: const Uuid().v4(),
-      name: name,
-      description: '專業的程式設計師，擅長開發和解決問題。',
-      rank: rank,
-      image: 'assets/images/programmer.png',
-      hpBonus: hpAdd,
-      mpBonus: mpAdd,
-      pointsBonus: pointAdd,
-      creativityBonus: createAdd,
-      popularityBonus: popularAdd,
-      connectionNumber: connect,
-      supportEvents: [],
-      storyEvents: [],
-      uniqueEvents: [],
-      childList: [],
-      baseHp: 100,
-      baseMp: 100,
-      basePoint: 100,
-      baseCreate: 100,
-      basePopular: 100,
-    );
-  }
-
-  factory CardModel.createDesignerCard({
-    required String name,
-    required CardRank rank,
-    required int connect,
-    required int hpAdd,
-    required int mpAdd,
-    required int pointAdd,
-    required int createAdd,
-    required int popularAdd,
-  }) {
-    return CardModel(
-      id: const Uuid().v4(),
-      name: name,
-      description: '專業的設計師，擅長視覺設計和用戶體驗。',
-      rank: rank,
-      image: 'assets/images/designer.png',
-      hpBonus: hpAdd,
-      mpBonus: mpAdd,
-      pointsBonus: pointAdd,
-      creativityBonus: createAdd,
-      popularityBonus: popularAdd,
-      connectionNumber: connect,
-      supportEvents: [],
-      storyEvents: [],
-      uniqueEvents: [],
-      childList: [],
-      baseHp: 90,
-      baseMp: 90,
-      basePoint: 90,
-      baseCreate: 120,
-      basePopular: 110,
-    );
-  }
-
-  factory CardModel.createManagerCard({
-    required String name,
-    required CardRank rank,
-    required int connect,
-    required int hpAdd,
-    required int mpAdd,
-    required int pointAdd,
-    required int createAdd,
-    required int popularAdd,
-  }) {
-    return CardModel(
-      id: const Uuid().v4(),
-      name: name,
-      description: '專業的專案經理，擅長團隊管理和項目規劃。',
-      rank: rank,
-      image: 'assets/images/manager.png',
-      hpBonus: hpAdd,
-      mpBonus: mpAdd,
-      pointsBonus: pointAdd,
-      creativityBonus: createAdd,
-      popularityBonus: popularAdd,
-      connectionNumber: connect,
-      supportEvents: [],
-      storyEvents: [],
-      uniqueEvents: [],
-      childList: [],
-      baseHp: 110,
-      baseMp: 100,
-      basePoint: 110,
-      baseCreate: 90,
-      basePopular: 90,
-    );
-  }
-
-  factory CardModel.createMarketerCard({
-    required String name,
-    required CardRank rank,
-    required int connect,
-    required int hpAdd,
-    required int mpAdd,
-    required int pointAdd,
-    required int createAdd,
-    required int popularAdd,
-  }) {
-    return CardModel(
-      id: const Uuid().v4(),
-      name: name,
-      description: '專業的行銷專員，擅長市場分析和推廣。',
-      rank: rank,
-      image: 'assets/images/marketer.png',
-      hpBonus: hpAdd,
-      mpBonus: mpAdd,
-      pointsBonus: pointAdd,
-      creativityBonus: createAdd,
-      popularityBonus: popularAdd,
-      connectionNumber: connect,
-      supportEvents: [],
-      storyEvents: [],
-      uniqueEvents: [],
-      childList: [],
-      baseHp: 90,
-      baseMp: 100,
-      basePoint: 100,
-      baseCreate: 100,
-      basePopular: 110,
-    );
   }
 
   Map<String, int> getCurrentStats() {

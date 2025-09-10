@@ -49,6 +49,8 @@ class _ParticleSystemState extends State<ParticleSystem> with SingleTickerProvid
   void _generateParticles() {
     _particles.clear();
     int count = switch (widget.rank) {
+      CardRank.L => 100,
+      CardRank.UR => 80,
       CardRank.SSR => 50,
       CardRank.SR => 30,
       CardRank.R => 20,
@@ -56,6 +58,8 @@ class _ParticleSystemState extends State<ParticleSystem> with SingleTickerProvid
     };
 
     Color baseColor = switch (widget.rank) {
+      CardRank.L => Colors.amber,
+      CardRank.UR => Colors.purple,
       CardRank.SSR => Colors.amber,
       CardRank.SR => Colors.blue,
       CardRank.R => Colors.green,
@@ -109,6 +113,8 @@ class Particle {
   void _init() {
     // 根據稀有度設置不同的粒子參數
     double maxSize = switch (rank) {
+      CardRank.L => 6.0,
+      CardRank.UR => 5.0,
       CardRank.SSR => 4.0,
       CardRank.SR => 3.0,
       CardRank.R => 2.0,
@@ -121,8 +127,18 @@ class Particle {
     theta = random.nextDouble() * pi * 2;
     size = random.nextDouble() * maxSize;
 
-    // 為SSR卡添加特殊效果
-    if (rank == CardRank.SSR) {
+    // 為高稀有度卡片添加特殊效果
+    if (rank == CardRank.L) {
+      color = HSLColor.fromColor(color)
+        .withLightness(random.nextDouble() * 0.3 + 0.7)
+        .withSaturation(1.0)
+        .toColor();
+    } else if (rank == CardRank.UR) {
+      color = HSLColor.fromColor(color)
+        .withLightness(random.nextDouble() * 0.4 + 0.6)
+        .withSaturation(0.8)
+        .toColor();
+    } else if (rank == CardRank.SSR) {
       color = HSLColor.fromColor(color)
         .withLightness(random.nextDouble() * 0.5 + 0.5)
         .toColor();
@@ -138,8 +154,8 @@ class Particle {
       _init();
     }
 
-    // SSR卡的粒子會閃爍
-    if (rank == CardRank.SSR) {
+    // 高稀有度卡片的粒子會閃爍
+    if (rank == CardRank.L || rank == CardRank.UR || rank == CardRank.SSR) {
       color = color.withOpacity(random.nextDouble() * 0.5 + 0.5);
     }
   }
@@ -163,6 +179,12 @@ class ParticlePainter extends CustomPainter {
 
       // 為不同稀有度添加不同的粒子形狀
       switch (rank) {
+        case CardRank.L:
+          // 六角星
+          _drawHexStar(canvas, particle.x, particle.y, particle.size, paint);
+        case CardRank.UR:
+          // 五角星
+          _drawStar(canvas, particle.x, particle.y, particle.size, paint);
         case CardRank.SSR:
           // 星形
           _drawStar(canvas, particle.x, particle.y, particle.size, paint);
@@ -187,6 +209,27 @@ class ParticlePainter extends CustomPainter {
           );
       }
     }
+  }
+
+  void _drawHexStar(Canvas canvas, double x, double y, double size, Paint paint) {
+    final path = Path();
+    final double radius = size * 2;
+    const int spikes = 6;
+    const double innerRadius = 0.4;
+
+    for (int i = 0; i < spikes * 2; i++) {
+      double r = (i % 2 == 0) ? radius : radius * innerRadius;
+      double angle = (i * pi) / spikes;
+      double dx = x + r * cos(angle);
+      double dy = y + r * sin(angle);
+      if (i == 0) {
+        path.moveTo(dx, dy);
+      } else {
+        path.lineTo(dx, dy);
+      }
+    }
+    path.close();
+    canvas.drawPath(path, paint);
   }
 
   void _drawStar(Canvas canvas, double x, double y, double size, Paint paint) {

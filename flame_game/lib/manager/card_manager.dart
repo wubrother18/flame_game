@@ -5,12 +5,14 @@ import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/model/enums.dart';
 import 'package:flame_game/data/card_data.dart';
 
+import '../service/card_config_service.dart';
+
 class CardManager {
   static final CardManager _instance = CardManager._internal();
   static CardManager get instance => _instance;
   late SharedPreferences _prefs;
   
-  final List<CardModel> allCards = CardData.getAllCards();
+  late List<CardModel> allCards;
   final List<CardModel> _collectedCards = [];
   int _experience = 0;
   int _gem = 0;
@@ -25,6 +27,7 @@ class CardManager {
     _prefs = await SharedPreferences.getInstance();
     _experience = _prefs.getInt(_expKey) ?? 0;
     _gem = _prefs.getInt(_gemKey) ?? 0;
+    allCards = CardConfigService.instance.getAllCards();
     await _loadCollectedCards();
   }
 
@@ -90,6 +93,8 @@ class CardManager {
 
       // 基礎經驗值（根據稀有度）
       returnedExp += switch (card.rank) {
+        CardRank.L => 10000,
+        CardRank.UR => 5000,
         CardRank.SSR => 1000,
         CardRank.SR => 500,
         CardRank.R => 200,
@@ -157,10 +162,12 @@ class CardManager {
 
   int _calculateCardExpValue(CardModel card) {
     final baseExp = switch (card.rank) {
-      CardRank.N => 100,
-      CardRank.R => 200,
-      CardRank.SR => 500,
+      CardRank.L => 10000,
+      CardRank.UR => 5000,
       CardRank.SSR => 1000,
+      CardRank.SR => 500,
+      CardRank.R => 200,
+      CardRank.N => 100,
     };
     return (baseExp * (1 + card.level * 0.1)).toInt();
   }

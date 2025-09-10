@@ -113,6 +113,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
   }
 
   void _handleLevelUp() async {
+    final key = GlobalKey<FormState>();
     final expPool = _cardManager.experience;
     final maxExp = _card.getRequiredExp();
     final currentExp = _card.currentExp;
@@ -125,24 +126,34 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
         content: StatefulBuilder(
           builder: (context, setState) {
             _expController.text = remainingExp.toString();
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('可用經驗值: $expPool'),
-                const SizedBox(height: 8),
-                Text('當前等級: ${_card.level}'),
-                Text('當前經驗值: $currentExp / $maxExp'),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _expController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: '使用經驗值',
-                    border: OutlineInputBorder(),
+            return Form(
+              key: key,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('可用經驗值: $expPool'),
+                  const SizedBox(height: 8),
+                  Text('當前等級: ${_card.level}'),
+                  Text('當前經驗值: $currentExp / $maxExp'),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _expController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: '使用經驗值',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value){
+                      print(value);
+                      if (value != null && value.isNotEmpty && int.parse(value) > expPool){
+                        return '經驗值不足';
+                      }
+                      return null;
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           },
         ),
@@ -153,6 +164,12 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
           ),
           TextButton(
             onPressed: () {
+              if(!key.currentState!.validate()){
+                setState(() {
+
+                });
+                return;
+              }
               final exp = int.tryParse(_expController.text) ?? 0;
               Navigator.pop(context, exp);
             },
@@ -174,7 +191,7 @@ class _CardDetailPageState extends State<CardDetailPage> with SingleTickerProvid
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('經驗值不足！')),
+            const SnackBar(content: Text('無法升級！')),
           );
         }
       }

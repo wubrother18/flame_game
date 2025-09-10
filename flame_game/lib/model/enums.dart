@@ -20,7 +20,9 @@ enum CardRank {
   N,    // 普通
   R,    // 稀有
   SR,   // 超稀有
-  SSR;  // 特殊超稀有
+  SSR,  // 特殊超稀有
+  UR,   // 究極稀有
+  L;    // 傳說級
 
   String toLowerCase() => name.toLowerCase();
 } 

@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/model/card_data.dart';
+
+import '../service/card_config_service.dart';
 // 關卡類型
 enum StageType {
   tutorial,    // 教學關卡
@@ -32,17 +34,17 @@ class StageManager {
   final Map<StageType, Map<int, StageReward>> _stageConfigs = {
     StageType.tutorial: {
       1: StageReward(
-        guaranteedCards: [CardData.getInitialCards()[0]],
+        guaranteedCards: [CardConfigService.instance.getAllCards()[0]],
         cardDropRate: 1.0,
         resources: {'point': 100, 'create': 50, 'popular': 30},
       ),
       2: StageReward(
-        guaranteedCards: [CardData.getInitialCards()[1]],
+        guaranteedCards: [CardConfigService.instance.getAllCards()[1]],
         cardDropRate: 1.0,
         resources: {'point': 100, 'create': 50, 'popular': 30},
       ),
       3: StageReward(
-        guaranteedCards: [CardData.getInitialCards()[2]],
+        guaranteedCards: [CardConfigService.instance.getAllCards()[2]],
         cardDropRate: 1.0,
         resources: {'point': 100, 'create': 50, 'popular': 30},
       ),

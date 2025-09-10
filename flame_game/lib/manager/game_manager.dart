@@ -50,10 +50,17 @@ class GameManager {
   }
 
   Future<void> init(List<CardModel> list, Function(String end) callBack) async {
-    cardList = list;
     day = 1;
+    professional = 0;
+    create = 0;
+    point = 0;
+    popular = 0;
+    isGameOver = false;
+    score = 0;
+    cardList = list;
     eventHelper = EventHelper();
     storyManager = StoryManager.instance;
+    role.init();
     role.setCard(list);
     eventHelper?.addSupportCardEvent(list);
     this.callBack = callBack;
@@ -82,9 +89,39 @@ class GameManager {
       List<GameEvent> allCardEvents = [];
       
       for (var card in cardList!) {
-        allCardEvents.addAll(card.supportEvents);
-        allCardEvents.addAll(card.storyEvents);
-        allCardEvents.addAll(card.uniqueEvents);
+        for (var event in card.supportEvents){
+          if(event.hpEffect>0){
+            event.hpEffect = event.hpEffect * card.level;
+          }
+          event.mpEffect = event.mpEffect * card.level;
+          event.pointEffect = event.pointEffect * card.level;
+          event.createEffect = event.createEffect * card.level;
+          event.popularEffect = event.popularEffect * card.level;
+          event.professionalEffect = event.professionalEffect * card.level;
+          allCardEvents.add(event);
+        }
+        for (var event in card.storyEvents){
+          if(event.hpEffect>0){
+            event.hpEffect = event.hpEffect * card.level;
+          }
+          event.mpEffect = event.mpEffect * card.level;
+          event.pointEffect = event.pointEffect * card.level;
+          event.createEffect = event.createEffect * card.level;
+          event.popularEffect = event.popularEffect * card.level;
+          event.professionalEffect = event.professionalEffect * card.level;
+          allCardEvents.add(event);
+        }
+        for (var event in card.uniqueEvents){
+          if(event.hpEffect>0){
+            event.hpEffect = event.hpEffect * card.level;
+          }
+          event.mpEffect = event.mpEffect * card.level;
+          event.pointEffect = event.pointEffect * card.level;
+          event.createEffect = event.createEffect * card.level;
+          event.popularEffect = event.popularEffect * card.level;
+          event.professionalEffect = event.professionalEffect * card.level;
+          allCardEvents.add(event);
+        }
       }
       
       events.addAll(allCardEvents);
@@ -113,19 +150,8 @@ class GameManager {
   }
 
   void handleEvent(GameEvent event) {
-    if (role.hp < 15 && event.hpEffect >= 0) {
+    if ((role.hp  + event.hpEffect) <= 0) {
       return;
-    }
-
-    if (cardList != null && cardList!.isNotEmpty) {
-      int totalLevel = cardList!.fold(0, (sum, card) => sum + card.level);
-      int averageLevel = (totalLevel / cardList!.length).ceil();
-      
-      event.hpEffect = (event.hpEffect * averageLevel).toInt();
-      event.mpEffect = (event.mpEffect * averageLevel).toInt();
-      event.pointEffect = (event.pointEffect * averageLevel).toInt();
-      event.createEffect = (event.createEffect * averageLevel).toInt();
-      event.popularEffect = (event.popularEffect * averageLevel).toInt();
     }
 
     role.handleEvent(event);
@@ -232,9 +258,9 @@ class GameManager {
   int calculateScore() {
     int baseScore = 1000;
     int levelBonus = role.level * 100;
-    int popularBonus = popular * 10;
-    int createBonus = create * 5;
-    int pointBonus = professional * 5;
+    int popularBonus = role.popular * 10;
+    int createBonus = role.create * 5;
+    int pointBonus = role.professional * 5;
     
     return baseScore + levelBonus + popularBonus + createBonus + pointBonus;
   }

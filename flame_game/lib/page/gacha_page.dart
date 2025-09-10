@@ -280,10 +280,12 @@ class _GachaPageState extends State<GachaPage> with SingleTickerProviderStateMix
 
   Color _getRankColor(CardRank rank) {
     return switch (rank) {
-      CardRank.N => Colors.grey,
-      CardRank.R => Colors.blue,
-      CardRank.SR => Colors.purple,
+      CardRank.L => const Color(0xFFFFD700), // 金色
+      CardRank.UR => const Color(0xFFFF00FF), // 亮紫色
       CardRank.SSR => Colors.orange,
+      CardRank.SR => Colors.purple,
+      CardRank.R => Colors.blue,
+      CardRank.N => Colors.grey,
     };
   }
 

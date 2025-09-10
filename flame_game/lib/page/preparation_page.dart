@@ -16,20 +16,72 @@ class _PreparationPageState extends State<PreparationPage> {
   final CardManager _cardManager = CardManager.instance;
   final List<CardModel> _selectedCards = [];
   final int _maxSelectedCards = 5;
+  String _searchQuery = '';
+  CardRank? _selectedRank;
+  String _sortBy = '稀有度';
+
+  List<CardModel> get _filteredCards {
+    List<CardModel> tmpList = [];
+    tmpList.addAll(_cardManager.collectedCards);
+    switch (_sortBy) {
+      case '等級':
+        tmpList.sort((a, b) {
+          final levelCompare = b.level.compareTo(a.level);
+          return levelCompare != 0 ? levelCompare : a.name.compareTo(b.name);
+        });
+        break;
+      case '名稱':
+        tmpList.sort((a, b) {
+          final nameCompare = a.name.compareTo(b.name);
+          return nameCompare != 0 ? nameCompare : b.level.compareTo(a.level);
+        });
+        break;
+      case '收集時間':
+        tmpList.sort((a, b) {
+          if (a.collectedAt == null && b.collectedAt == null) return 0;
+          if (a.collectedAt == null) return 1;
+          if (b.collectedAt == null) return -1;
+          return b.collectedAt!.compareTo(a.collectedAt!);
+        });
+        break;
+      case '稀有度':
+        tmpList.sort((a, b) {
+          // 定義稀有度順序
+          final rarityOrder = {
+            CardRank.L: 7,
+            CardRank.UR: 5,
+            CardRank.SSR: 4,
+            CardRank.SR: 3,
+            CardRank.R: 2,
+            CardRank.N: 1,
+          };
+          final rarityCompare = rarityOrder[b.rank]!.compareTo(rarityOrder[a.rank]!);
+          return rarityCompare != 0 ? rarityCompare : b.level.compareTo(a.level);
+        });
+        break;
+    }
+    return tmpList.where((card) {
+      final matchesSearch = _searchQuery.isEmpty ||
+          card.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          card.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesRank = _selectedRank == null || card.rank == _selectedRank;
+      return matchesSearch && matchesRank;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SciFiBackground(
-      primaryColor: const Color(0xFF2E1A2E),
-      secondaryColor: const Color(0xFF3E163E),
-      accentColor: const Color(0xFF600F60),
-      gridSize: 25,
+      primaryColor: const Color(0xFF2E1A1A),
+      secondaryColor: const Color(0xFF3E1616),
+      accentColor: const Color(0xFF600F0F),
+      gridSize: 30,
       lineWidth: 1,
       glowIntensity: 0.5,
       gradientColors: [
-        const Color(0xFF2E1A2E),
-        const Color(0xFF3E163E),
-        const Color(0xFF600F60),
+        const Color(0xFF2E1A1A),
+        const Color(0xFF3E1616),
+        const Color(0xFF600F0F),
       ],
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -43,12 +95,16 @@ class _PreparationPageState extends State<PreparationPage> {
               fontWeight: FontWeight.bold,
               shadows: [
                 Shadow(
-                  color: Color(0xFF600F60),
+                  color: Color(0xFF600F0F),
                   offset: Offset(0, 2),
                   blurRadius: 4,
                 ),
               ],
             ),
+          ),
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           ),
         ),
         body: Column(
@@ -56,7 +112,107 @@ class _PreparationPageState extends State<PreparationPage> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: '搜索卡片...',
+                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                        prefixIcon: const Icon(Icons.search, color: Colors.white),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DropdownButton<CardRank>(
+                      value: _selectedRank,
+                      hint: const Text(
+                        '全部',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      dropdownColor: const Color(0xFF2E1A1A),
+                      underline: const SizedBox(),
+                      style: const TextStyle(color: Colors.white),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('全部', style: TextStyle(color: Colors.white)),
+                        ),
+                        ...CardRank.values.map((rank) {
+                          return DropdownMenuItem(
+                            value: rank,
+                            child: Text(rank.name, style: const TextStyle(color: Colors.white)),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedRank = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: DropdownButton<String>(
+                      value: _sortBy,
+                      dropdownColor: const Color(0xFF2E1A1A),
+                      underline: const SizedBox(),
+                      style: const TextStyle(color: Colors.white),
+                      items: const [
+                        DropdownMenuItem(
+                          value: '稀有度',
+                          child: Text('稀有度', style: TextStyle(color: Colors.white)),
+                        ),
+                        DropdownMenuItem(
+                          value: '等級',
+                          child: Text('等級', style: TextStyle(color: Colors.white)),
+                        ),
+                        DropdownMenuItem(
+                          value: '名稱',
+                          child: Text('名稱', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _sortBy = value!;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     '已選擇卡片: ${_selectedCards.length}/$_maxSelectedCards',
@@ -83,8 +239,7 @@ class _PreparationPageState extends State<PreparationPage> {
                       child: const Text('開始遊戲'),
                     ),
                 ],
-              ),
-            ),
+              ),),
             Expanded(
               child: GridView.builder(
                 padding: const EdgeInsets.all(16),
@@ -94,9 +249,9 @@ class _PreparationPageState extends State<PreparationPage> {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),
-                itemCount: _cardManager.collectedCards.length,
+                itemCount: _filteredCards.length,
                 itemBuilder: (context, index) {
-                  final card = _cardManager.collectedCards[index];
+                  final card = _filteredCards[index];
                   return _buildCardItem(card);
                 },
               ),
@@ -228,10 +383,12 @@ class _PreparationPageState extends State<PreparationPage> {
 
   Color _getRankColor(CardRank rank) {
     return switch (rank) {
-      CardRank.N => Colors.grey,
-      CardRank.R => Colors.blue,
-      CardRank.SR => Colors.purple,
+      CardRank.L => const Color(0xFFFFD700), // 金色
+      CardRank.UR => const Color(0xFFFF00FF), // 亮紫色
       CardRank.SSR => Colors.orange,
+      CardRank.SR => Colors.purple,
+      CardRank.R => Colors.blue,
+      CardRank.N => Colors.grey,
     };
   }
 

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flame_game/manager/achieve_manager.dart';
 import 'package:flame_game/model/user_data.dart';
+import 'package:flame_game/service/card_config_service.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flame_game/manager/achievement_manager.dart';
@@ -29,6 +30,7 @@ class StaticFunction {
   late final RoleManager roleManager;
   late final GachaManager gachaManager;
   late final GameManager gameManager;
+  late CardConfigService cardConfigService;
   late EventHelper eventHelper;
   late SaveManager saveManager;
   late ShopManager shopManager;
@@ -36,6 +38,7 @@ class StaticFunction {
   late UpgradeManager upgradeManager;
 
   StaticFunction._internal() {
+    cardConfigService = CardConfigService.instance;
     _achievementManager = AchievementManager.instance;
     cardManager = CardManager.instance;
     roleManager = RoleManager.instance;
@@ -49,6 +52,7 @@ class StaticFunction {
   }
 
   Future<void> init() async {
+    await cardConfigService.init();
     await _achievementManager.initialize();
     await cardManager.init();
     await gachaManager.init();

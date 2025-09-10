@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flame_game/service/card_config_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flame_game/model/card_model.dart';
 import 'package:flame_game/model/card_data.dart';
@@ -107,58 +108,8 @@ class GachaManager {
 
   Future<CardModel> draw(GachaType type) async {
     final rank = _drawRank(type);
-    final cardType = _random.nextInt(4); // 0: 程式設計師, 1: 設計師, 2: 專案經理, 3: 行銷專員
-    
-    CardModel card;
-    switch (cardType) {
-      case 0:
-        card = CardModel.createProgrammerCard(
-          name: _getProgrammerName(rank),
-          rank: rank,
-          connect: 3,
-          hpAdd: 80,
-          mpAdd: 70,
-          pointAdd: 60,
-          createAdd: 80,
-          popularAdd: 60,
-        );
-        break;
-      case 1:
-        card = CardModel.createDesignerCard(
-          name: _getDesignerName(rank),
-          rank: rank,
-          connect: 3,
-          hpAdd: 60,
-          mpAdd: 60,
-          pointAdd: 70,
-          createAdd: 90,
-          popularAdd: 70,
-        );
-        break;
-      case 2:
-        card = CardModel.createManagerCard(
-          name: _getManagerName(rank),
-          rank: rank,
-          connect: 4,
-          hpAdd: 70,
-          mpAdd: 80,
-          pointAdd: 80,
-          createAdd: 60,
-          popularAdd: 60,
-        );
-        break;
-      default:
-        card = CardModel.createMarketerCard(
-          name: _getMarketerName(rank),
-          rank: rank,
-          connect: 3,
-          hpAdd: 60,
-          mpAdd: 70,
-          pointAdd: 70,
-          createAdd: 70,
-          popularAdd: 80,
-        );
-    }
+    List<CardModel> list = CardConfigService.instance.getCardsByRank(rank);
+    CardModel card = list[_random.nextInt(list.length)];
     
     card.collectedAt = DateTime.now();
     _collectedCards.add(card);
@@ -167,58 +118,6 @@ class GachaManager {
     await CardManager.instance.collectCard(card);
     await saveDrawHistory(card, type);
     return card;
-  }
-
-  String _getProgrammerName(CardRank rank) {
-    switch (rank) {
-      case CardRank.SSR:
-        return '資深工程師';
-      case CardRank.SR:
-        return '中級工程師';
-      case CardRank.R:
-        return '初級工程師';
-      case CardRank.N:
-        return '實習工程師';
-    }
-  }
-
-  String _getDesignerName(CardRank rank) {
-    switch (rank) {
-      case CardRank.SSR:
-        return '資深設計師';
-      case CardRank.SR:
-        return '中級設計師';
-      case CardRank.R:
-        return '初級設計師';
-      case CardRank.N:
-        return '實習設計師';
-    }
-  }
-
-  String _getManagerName(CardRank rank) {
-    switch (rank) {
-      case CardRank.SSR:
-        return '資深經理';
-      case CardRank.SR:
-        return '中級經理';
-      case CardRank.R:
-        return '初級經理';
-      case CardRank.N:
-        return '實習經理';
-    }
-  }
-
-  String _getMarketerName(CardRank rank) {
-    switch (rank) {
-      case CardRank.SSR:
-        return '資深行銷';
-      case CardRank.SR:
-        return '中級行銷';
-      case CardRank.R:
-        return '初級行銷';
-      case CardRank.N:
-        return '實習行銷';
-    }
   }
 
   int get pityProgress => _pityProgress;

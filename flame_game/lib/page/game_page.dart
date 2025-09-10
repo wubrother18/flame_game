@@ -70,7 +70,9 @@ class _GamePageState extends State<GamePage> with SingleTickerProviderStateMixin
 
     // 監聽成就完成事件
     StaticFunction.instance.achieveManager.onAchievementCompleted = (achievement) {
-      _showAchievementNotification(achievement);
+      if(mounted){
+        _showAchievementNotification(achievement);
+      }
     };
   }
 

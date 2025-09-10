@@ -42,6 +42,17 @@ class Role {
   set level(int value) => _level = value.clamp(1, 100);
   set name(String value) => _name = value;
 
+  //初始化數值
+  void init() {
+    _hp = 100;
+    _mp = 100;
+    _point = 0;
+    _professional = 0;
+    _create = 0;
+    _popular = 0;
+    _level = 1;
+  }
+
   // 升級角色
   bool upgrade() {
     final requiredPoint = _level * 100;
@@ -103,11 +114,19 @@ class Role {
     cards = list;
     // 根據卡片更新屬性
     for (var card in cards) {
-      hp += card.hpAdd;
-      mp += card.mpAdd;
-      point += card.pointAdd;
-      // create += card.createAdd ?? 0;
-      // popular += card.popularAdd ?? 0;
+      if(card == cards.first){
+        hp += card.baseHp;
+        mp += card.baseMp;
+        point += card.basePoint;
+        create += card.baseCreate ?? 0;
+        popular += card.basePopular ?? 0;
+      }else{
+        hp += card.hpAdd;
+        mp += card.mpAdd;
+        point += card.pointAdd;
+        create += card.createAdd ?? 0;
+        popular += card.popularAdd ?? 0;
+      }
     }
   }
 }

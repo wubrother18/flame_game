@@ -16,48 +16,7 @@ class RoleManager {
   }
 
   void _initRoles() {
-    availableRoles = [
-      CardModel.createProgrammerCard(
-        name: '程式設計師',
-        rank: CardRank.SSR,
-        connect: 3,
-        hpAdd: 100,
-        mpAdd: 150,
-        pointAdd: 120,
-        createAdd: 80,
-        popularAdd: 60,
-      ),
-      CardModel.createDesignerCard(
-        name: '設計師',
-        rank: CardRank.SSR,
-        connect: 3,
-        hpAdd: 90,
-        mpAdd: 140,
-        pointAdd: 100,
-        createAdd: 120,
-        popularAdd: 80,
-      ),
-      CardModel.createManagerCard(
-        name: '專案經理',
-        rank: CardRank.SSR,
-        connect: 4,
-        hpAdd: 120,
-        mpAdd: 130,
-        pointAdd: 110,
-        createAdd: 70,
-        popularAdd: 100,
-      ),
-      CardModel.createMarketerCard(
-        name: '行銷專員',
-        rank: CardRank.SSR,
-        connect: 3,
-        hpAdd: 80,
-        mpAdd: 120,
-        pointAdd: 90,
-        createAdd: 100,
-        popularAdd: 120,
-      ),
-    ];
+    availableRoles = [];
   }
 
   void setCurrentRole(CardModel role) {

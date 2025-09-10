@@ -12,8 +12,10 @@ import 'package:flame_game/widgets/sci_fi_background.dart';
 import 'package:flame_game/page/gacha_page.dart';
 import 'package:flame_game/page/game_page.dart';
 import 'package:flame_game/page/preparation_page.dart';
+import 'dart:math';
 
 import '../manager/achievement_manager.dart';
+import '../service/card_config_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -310,10 +312,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Color _getRankColor(CardRank rank) {
     return switch (rank) {
-      CardRank.SSR => Colors.amber.shade700,
-      CardRank.SR => Colors.blue.shade700,
-      CardRank.R => Colors.green.shade700,
-      CardRank.N => Colors.grey.shade700,
+      CardRank.L => const Color(0xFFFFD700), // 金色
+      CardRank.UR => const Color(0xFFFF00FF), // 亮紫色
+      CardRank.SSR => Colors.orange,
+      CardRank.SR => Colors.purple,
+      CardRank.R => Colors.blue,
+      CardRank.N => Colors.grey,
     };
   }
 
@@ -447,6 +451,18 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ],
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.redeem),
+              color: Colors.white,
+              onPressed: _showRedeemDialog,
+              tooltip: '輸入兌換碼',
+            ),
+          ],
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -454,7 +470,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '30天後',
+                  '30天鍊成',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -588,6 +604,76 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _handleRedeemCode(String code) async {
+    try {
+      switch (code.toLowerCase()) {
+        case 'fly flutter':
+          // 從卡表中獲取拉多卡片
+          final ladoCard = CardConfigService.instance.getCardById('flutter_dash');
+          if (ladoCard != null) {
+            ladoCard.collectedAt = DateTime.now();
+            await CardManager.instance.collectCard(ladoCard);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('獲得傳說級卡片：想飛的拉多')),
+            );
+          }
+          break;
+        case 'give me ur':
+          // 從卡表中獲取所有 UR 卡片
+          final urCards = CardConfigService.instance.getCardsByRank(CardRank.UR);
+          if (urCards.isNotEmpty) {
+            final random = Random();
+            final randomURCard = urCards[random.nextInt(urCards.length)];
+            randomURCard.collectedAt = DateTime.now();
+            await CardManager.instance.collectCard(randomURCard);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('獲得究極稀有卡片：${randomURCard.name}')),
+            );
+          }
+          break;
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('無效的兌換碼')),
+          );
+      }
+    } catch (e) {
+      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('兌換失敗，請稍後再試')),
+      );
+    }
+  }
+
+  void _showRedeemDialog() {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('輸入兌換碼'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: '請輸入兌換碼',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              _handleRedeemCode(controller.text);
+              Navigator.pop(context);
+            },
+            child: const Text('確認'),
+          ),
+        ],
       ),
     );
   }
